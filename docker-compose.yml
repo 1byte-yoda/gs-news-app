@@ -1,0 +1,24 @@
+version: '3.7'
+
+services:
+  api:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile.api.dev
+    command: python manage.py run -h 0.0.0.0
+    volumes:
+      - ./server:/usr/src/app/
+    ports:
+      - 5001:5000
+    env_file:
+      - ./server/.env.dev
+    depends_on:
+      - db
+  db:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile.db.dev
+    ports:
+      - 5436:5432
+    env_file:
+      - ./server/.env.db.dev
