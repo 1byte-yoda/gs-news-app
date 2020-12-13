@@ -11,8 +11,12 @@ class User(db.Model):
     name = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(128), nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.utcnow
+    )
+    updated_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.utcnow
+    )
 
     def __init__(self, name, email, password):
         self.name = name

@@ -14,7 +14,6 @@ def create_app(script_info=None):
     app_settings = os.getenv('APP_SETTINGS')
     app.config.from_object(app_settings)
 
-
     # set up extensions
     db.init_app(app)
 

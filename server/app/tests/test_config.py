@@ -26,6 +26,7 @@ class TestDevelopmentConfig(TestCase):
             app.config["SQLALCHEMY_DATABASE_URI"] == db_url
         )
 
+
 class TestTestingConfig(TestCase):
     def create_app(self):
         app.config.from_object("app.config.TestingConfig")
