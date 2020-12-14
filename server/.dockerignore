@@ -3,3 +3,4 @@ env
 Dockerfile.api.dev
 Dockerfile.db.dev
 htmlcov
+migrations

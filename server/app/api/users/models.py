@@ -17,7 +17,7 @@ class User(db.Model):
         unique=True
     )
     name = db.Column(db.String(128), nullable=False)
-    email = db.Column(db.String(128), nullable=False)
+    email = db.Column(db.String(128), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     created_at = db.Column(
         db.String(64),
