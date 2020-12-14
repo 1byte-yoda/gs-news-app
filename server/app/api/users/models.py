@@ -1,21 +1,34 @@
 # server/app/api/users/models.py
 
 
-from app import db
 from datetime import datetime
+from typing import Dict
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
+from werkzeug.security import generate_password_hash
+from app import db
 
 
 class User(db.Model):
     __tablename__ = "users"
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True
+    )
     name = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(128), nullable=False)
-    password = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(128), nullable=False)
     created_at = db.Column(
-        db.DateTime, nullable=False, default=datetime.utcnow
+        db.String(64),
+        nullable=False,
+        default=datetime.now().astimezone().replace(microsecond=0).isoformat
     )
     updated_at = db.Column(
-        db.DateTime, nullable=False, default=datetime.utcnow
+        db.String(64),
+        nullable=False,
+        default=datetime.now().astimezone().replace(microsecond=0).isoformat
     )
 
     def __init__(self, name, email, password):
@@ -23,10 +36,35 @@ class User(db.Model):
         self.email = email
         self.password = password
 
-    @property
-    def created_at(self):
-        return self.created_at.isoformat()
+    def json(self) -> Dict:
+        return {
+            "id": str(self.id),
+            "email": self.email,
+            "name": self.name,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at
+        }
 
     @property
-    def updated_at(self):
-        return self.updated_at.isoformat()
+    def password(self):
+        """Protect password attribute."""
+        raise AttributeError('password is not a readable attribute')
+
+    @password.setter
+    def password(self, password: str) -> None:
+        """Generate a hash equivalent of a given password."""
+        self.password_hash = generate_password_hash(password)
+
+    @classmethod
+    def find(cls, **kwargs) -> "User":
+        """Find a database entry that matches given keyword argument."""
+        if (
+            len(kwargs) == 1
+            and list(kwargs.keys())[0] in cls.__table__.columns
+        ):
+            return cls.query.filter_by(**kwargs).first()
+
+    def insert(self) -> None:
+        """Insert into the database."""
+        db.session.add(self)
+        db.session.commit()

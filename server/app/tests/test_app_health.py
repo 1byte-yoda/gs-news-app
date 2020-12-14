@@ -7,7 +7,6 @@ from app.tests.base import BaseTestCase
 
 
 class TestAppStatus(BaseTestCase):
-    """Tests for the Status of the App."""
     def test_app_status(self):
         """Ensure the /ping route behaves correctly."""
         response = self.client.get("/ping")
