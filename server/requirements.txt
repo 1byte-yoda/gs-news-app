@@ -4,3 +4,4 @@ psycopg2-binary==2.8.6
 Flask-Testing==0.8.0
 flake8==3.8.4
 flask_restful==0.3.8
+flask-bcrypt==0.7.1

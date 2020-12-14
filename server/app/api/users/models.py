@@ -5,8 +5,7 @@ from datetime import datetime
 from typing import Dict
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from werkzeug.security import generate_password_hash
-from app import db
+from app import db, bcrypt
 
 
 class User(db.Model):
@@ -53,7 +52,7 @@ class User(db.Model):
     @password.setter
     def password(self, password: str) -> None:
         """Generate a hash equivalent of a given password."""
-        self.password_hash = generate_password_hash(password)
+        self.password_hash = bcrypt.generate_password_hash(password).decode()
 
     @classmethod
     def find(cls, **kwargs) -> "User":

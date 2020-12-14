@@ -1,4 +1,4 @@
-# server/app/tests/test_users.py
+# server/app/tests/users/test_users.py
 
 
 import json
@@ -20,7 +20,6 @@ class TestUserView(BaseTestCase):
                 data=json.dumps(data_test),
                 content_type="application/json"
             )
-
             data = json.loads(response.data)
             self.assertEqual(response.status_code, 201)
             self.assertTrue(uuid_pattern_matched(data["id"]))
@@ -56,26 +55,25 @@ class TestUserView(BaseTestCase):
                 data=json.dumps(data_test_email_only),
                 content_type="application/json"
             )
+            data_email_only = json.loads(response_email_only.data)
             response_password_only = self.client.post(
                 "/user/register",
                 data=json.dumps(data_test_password_only),
                 content_type="application/json"
             )
+            data_password_only = json.loads(response_password_only.data)
             response_name_only = self.client.post(
                 "/user/register",
                 data=json.dumps(data_test_name_only),
                 content_type="application/json"
             )
-            data_email_only = json.loads(response_email_only.data)
-            data_password_only = json.loads(response_password_only.data)
             data_name_only = json.loads(response_name_only.data)
             self.assertEqual(response_email_only.status_code, 400)
-            self.assertIn('Invalid payload.', data_email_only['message'])
-            self.assertEqual(response_name_only.status_code, 400)
-            self.assertIn('Invalid payload.', data_name_only['message'])
             self.assertEqual(response_password_only.status_code, 400)
+            self.assertEqual(response_name_only.status_code, 400)
+            self.assertIn('Invalid payload.', data_email_only['message'])
+            self.assertIn('Invalid payload.', data_name_only['message'])
             self.assertIn('Invalid payload.', data_password_only['message'])
-
 
     def test_add_user_duplicate_email(self):
         """Ensure error is thrown if the email already exists."""

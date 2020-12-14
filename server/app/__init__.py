@@ -4,7 +4,7 @@
 import os
 from flask import Flask, jsonify, Blueprint
 from db import db
-from app.api.users.models import User
+from app.extensions import bcrypt
 from app.api.users import users_blueprint
 
 
@@ -19,6 +19,7 @@ def create_app(script_info=None):
 
     # set up extensions
     db.init_app(app)
+    bcrypt.init_app(app)
 
     # register blueprints
     app.register_blueprint(health_blueprint)
@@ -27,6 +28,7 @@ def create_app(script_info=None):
     # shell context for flask cli
     @app.shell_context_processor
     def ctx():
+        from app.api.users.models import User
         return {"app": app, "db": db, "User": User}
 
     return app
