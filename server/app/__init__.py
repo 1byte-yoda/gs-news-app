@@ -22,7 +22,6 @@ def create_app(script_info=None):
     bcrypt.init_app(app)
 
     # register blueprints
-    app.register_blueprint(health_blueprint)
     app.register_blueprint(users_blueprint)
 
     # shell context for flask cli
@@ -31,16 +30,11 @@ def create_app(script_info=None):
         from app.api.users.models import User
         return {"app": app, "db": db, "User": User}
 
+    @app.route("/ping", methods=["GET"])
+    def ping_pong():
+        """Check application"s health"""
+        return jsonify({
+            "status": "success",
+            "message": "pong!"
+        })
     return app
-
-
-health_blueprint = Blueprint("health", __name__)
-
-
-@health_blueprint.route("/ping", methods=["GET"])
-def ping_pong():
-    """Check application"s health"""
-    return jsonify({
-        "status": "success",
-        "message": "pong!"
-    })
