@@ -7,3 +7,4 @@ flask_restful==0.3.8
 flask-bcrypt==0.7.1
 coverage==5.3
 flask-migrate==2.5.3
+pyjwt==1.7.1

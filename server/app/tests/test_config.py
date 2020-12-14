@@ -29,6 +29,8 @@ class TestDevelopmentConfig(TestCase):
         self.assertTrue(
             app.config['BCRYPT_LOG_ROUNDS'] == bcrypt_rounds_dev
         )
+        self.assertTrue(app.config['TOKEN_EXPIRATION_DAYS'] == 30)
+        self.assertTrue(app.config['TOKEN_EXPIRATION_SECONDS'] == 0)
 
 
 class TestTestingConfig(TestCase):
@@ -49,7 +51,8 @@ class TestTestingConfig(TestCase):
         self.assertTrue(
             app.config['BCRYPT_LOG_ROUNDS'] == bcrypt_rounds_test
         )
-
+        self.assertTrue(app.config['TOKEN_EXPIRATION_DAYS'] == 0)
+        self.assertTrue(app.config['TOKEN_EXPIRATION_SECONDS'] == 3)
 
 class TestProductionConfig(TestCase):
     def create_app(self):
@@ -64,6 +67,8 @@ class TestProductionConfig(TestCase):
         self.assertTrue(
             app.config['BCRYPT_LOG_ROUNDS'] == bcrypt_rounds
         )
+        self.assertTrue(app.config['TOKEN_EXPIRATION_DAYS'] == 30)
+        self.assertTrue(app.config['TOKEN_EXPIRATION_SECONDS'] == 0)
 
 
 if __name__ == "__main__":
