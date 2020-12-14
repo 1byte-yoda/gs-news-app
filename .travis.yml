@@ -19,7 +19,7 @@ before_script:
 
 script:
   - docker-compose run api python manage.py test
-  - docker-compose run api flake8 project
+  - docker-compose run api flake8 app
 
 after_script:
   - docker-compose down
