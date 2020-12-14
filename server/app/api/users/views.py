@@ -17,10 +17,12 @@ class UsersRegister(Resource):
         if not post_data:
             return response_object, 400
         email = post_data.get("email")
+        password = post_data.get("password")
+        name = post_data.get("name")
         try:
             user = User.find(email=email)
             if not user:
-                user = User(**post_data)
+                user = User(name=name, email=email, password=password)
                 user.insert()
                 added_user = User.find(
                     email=post_data["email"]
@@ -35,6 +37,6 @@ class UsersRegister(Resource):
         except exc.IntegrityError:
             db.session.rollback()
             return response_object, 400
-        except (exc.IntegrityError, ValueError):
+        except (exc.IntegrityError, ValueError, TypeError):
             db.session.rollback()
             return response_object, 400
