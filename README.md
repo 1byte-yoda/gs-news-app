@@ -5,7 +5,7 @@
 *** an issue with the tag "enhancement".
 *** Thanks again! Now go create something AMAZING! :D
 -->
-[![Build Status](https://travis-ci.org/PHMark/gs-news-app.svg?branch=master)](https://travis-ci.org/PHMark/gs-news-app)
+[![Build Status](https://travis-ci.com/PHMark/gs-news-app.svg?branch=master)](https://travis-ci.com/PHMark/gs-news-app)
 
 
 <!-- PROJECT LOGO -->
