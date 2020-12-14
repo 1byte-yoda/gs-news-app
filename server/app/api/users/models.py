@@ -26,9 +26,9 @@ class User(db.Model):
         nullable=False,
         default=(
             datetime.datetime.now()
-                    .astimezone()
-                    .replace(microsecond=0)
-                    .isoformat
+            .astimezone()
+            .replace(microsecond=0)
+            .isoformat
         )
     )
     updated_at = db.Column(
@@ -110,4 +110,3 @@ class User(db.Model):
             return "Signature expired. Please log in again."
         except jwt.InvalidTokenError:
             return "Invalid token. Please log in again."
-    
