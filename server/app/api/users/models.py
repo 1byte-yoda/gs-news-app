@@ -81,7 +81,7 @@ class User(db.Model):
         db.session.commit()
 
     def encode_auth_token(self, user_id):
-        """Generates the auth token"""
+        """Generates the auth token."""
         try:
             payload = {
                 "exp": datetime.datetime.utcnow() + datetime.timedelta(
