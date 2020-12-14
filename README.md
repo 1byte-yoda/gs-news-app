@@ -5,13 +5,13 @@
 *** an issue with the tag "enhancement".
 *** Thanks again! Now go create something AMAZING! :D
 -->
-[![Build Status](https://travis-ci.org/PHmark19/gs-news-app.svg?branch=master)](https://travis-ci.org/PHmark19/gs-news-app)
+[![Build Status](https://travis-ci.org/PHmark/gs-news-app.svg?branch=master)](https://travis-ci.org/PHmark/gs-news-app)
 
 
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
-  <a href="https://github.com/PHMark19/gs-news-app">
+  <a href="https://github.com/PHmark/gs-news-app">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -20,14 +20,14 @@
   <p align="center">
     DESCRIPTION HERE
     <br />
-    <a href="https://github.com/PHMark19/gs-news-app"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/PHmark/gs-news-app"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/PHMark19/gs-news-app">View Demo</a>
+    <a href="https://github.com/PHmark/gs-news-app">View Demo</a>
     ·
-    <a href="https://github.com/PHMark19/gs-news-app/issues">Report Bug</a>
+    <a href="https://github.com/PHmark/gs-news-app/issues">Report Bug</a>
     ·
-    <a href="https://github.com/PHMark19/gs-news-app/issues">Request Feature</a>
+    <a href="https://github.com/PHmark/gs-news-app/issues">Request Feature</a>
   </p>
 </p>
 
@@ -82,7 +82,7 @@ This is an example of how to list things you need to use the software and how to
 
 1. Clone the repo
 ```sh
-git clone https://github.com/PHMark19/gs-news-app.git
+git clone https://github.com/PHmark/gs-news-app.git
 ```
 2. Install python packages
 ```sh
@@ -104,7 +104,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 Mark - dmc.markr@gmail.com
 
-Project Link: [https://github.com/PHMark19/gs-news-app](https://github.com/PHMark19/gs-news-app)
+Project Link: [https://github.com/PHmark/gs-news-app](https://github.com/PHmark/gs-news-app)
 
 
 
