@@ -8,6 +8,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from flask import current_app
 import jwt
 from app import db, bcrypt
+from app.api.utils import ISO8601DateTime
 
 
 class User(db.Model):
@@ -22,24 +23,14 @@ class User(db.Model):
     email = db.Column(db.String(128), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     created_at = db.Column(
-        db.String(64),
+        ISO8601DateTime,
         nullable=False,
-        default=(
-            datetime.datetime.now()
-            .astimezone()
-            .replace(microsecond=0)
-            .isoformat
-        )
+        default=datetime.datetime.now
     )
     updated_at = db.Column(
-        db.String(64),
+        ISO8601DateTime,
         nullable=False,
-        default=(
-            datetime.datetime.now()
-            .astimezone()
-            .replace(microsecond=0)
-            .isoformat
-        )
+        default=datetime.datetime.now
     )
 
     def __init__(self, name, email, password):
