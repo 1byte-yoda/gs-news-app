@@ -3,7 +3,10 @@
 
 import json
 from flask import current_app
-from app.api.users.models import User
+from app.api.users.models import (
+    User,
+    UserToken
+)
 from app.tests.base import BaseTestCase
 from app.utils import (
     iso8601_pattern_matched,
@@ -142,6 +145,42 @@ class TestUserView(BaseTestCase):
             self.assertTrue(response.content_type == "application/json")
             self.assertEqual(response.status_code, 404)
 
+    def test_not_allowed_more_than_one_concurrent_user(self):
+        """
+        Ensure that only one token per user is valid.
+        """
+        data_test = {
+            "name": "juan",
+            "email": "michael@abc.org",
+            "password": "samplepassword",
+        }
+        user = User(**data_test)
+        user.insert()
+        with self.client:
+            self.client.post(
+                "/user/login",
+                data=json.dumps({
+                    "email": data_test["email"],
+                    "password": data_test["password"]
+                }),
+                content_type="application/json"
+            )
+            second_login = self.client.post(
+                "/user/login",
+                data=json.dumps({
+                    "email": data_test["email"],
+                    "password": data_test["password"]
+                }),
+                content_type="application/json"
+            )
+            data2 = json.loads(second_login.data.decode())
+            users = UserToken.query.filter_by(
+                        user_identity=user.id.__str__(),
+                        revoked="f"
+                    ).all()
+            self.assertTrue(all([u.revoked for u in users[:-1]]))
+            self.assertIn("token", data2)
+
     def test_valid_logout(self):
         """Ensure that a logged in user can log out."""
         data_test = {
@@ -166,6 +205,7 @@ class TestUserView(BaseTestCase):
                 headers={"Authorization": f"Bearer {token}"}
             )
             data = json.loads(response.data.decode())
+            user = User.find(id=user.id)
             self.assertTrue(data["message"] == "Successfully logged out.")
             self.assertEqual(response.status_code, 200)
 
@@ -173,12 +213,13 @@ class TestUserView(BaseTestCase):
         """Ensure that a user with expired token cannot log out."""
         data_test = {
             "name": "james",
-            "email": "michael@abc.org",
+            "email": "michael@abcde.org",
             "password": "samplepassword",
         }
         user = User(**data_test)
         user.insert()
         current_app.config['JWT_ACCESS_TOKEN_EXPIRES'] = -1
+        current_app.config['JWT_BLACKLIST_ENABLED'] = False
         with self.client:
             resp_login = self.client.post(
                 "/user/login",
@@ -194,8 +235,6 @@ class TestUserView(BaseTestCase):
                 headers={"Authorization": f"Bearer {token}"}
             )
             data = json.loads(response.data)
-            import sys
-            sys.stderr.write(str(data))
             self.assertTrue(
                 data["message"] == "Signature expired. Please log in again."
             )

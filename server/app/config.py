@@ -11,6 +11,8 @@ class BaseConfig:
     SECRET_KEY = os.environ.get("SECRET_KEY")
     BCRYPT_LOG_ROUNDS = int(os.environ.get("BCRYPT_LOG_ROUNDS"))
     JWT_ACCESS_TOKEN_EXPIRES = 2592000
+    JWT_BLACKLIST_ENABLED = True
+    JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
 
 
 class DevelopmentConfig(BaseConfig):

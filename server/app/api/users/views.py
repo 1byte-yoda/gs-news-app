@@ -1,18 +1,29 @@
 # server/app/api/users/views.py
 
+
 from sqlalchemy import exc
-from flask import request
+from flask import request, current_app
 from flask_restful import Resource
 from flask_jwt_extended import (
     jwt_required,
+    get_raw_jwt,
     get_jwt_identity,
     create_access_token
 )
 from app import db, bcrypt
 from app.api.users.models import User
+from app.api.users.blacklist import (
+    add_token_to_database,
+    revoke_token,
+    revoke_user
+)
 
 
 class UsersRegister(Resource):
+    @jwt_required
+    def get(self):
+        return {"can_access": True}
+
     def post(self):
         post_data = request.get_json()
         response_object = {
@@ -67,6 +78,11 @@ class UserLogin(Resource):
                     token = create_access_token(
                         identity=user.id.__str__(), fresh=True
                     )
+                    revoke_user(user.id.__str__())
+                    add_token_to_database(
+                        token,
+                        current_app.config['JWT_IDENTITY_CLAIM']
+                    )
                     response_object = {
                         "token": token
                     }
@@ -74,8 +90,7 @@ class UserLogin(Resource):
             else:
                 response_object["message"] = "User does not exist."
                 return response_object, 404
-        except Exception as e:
-            print(e)
+        except Exception:
             response_object["message"] = "Try again."
             return response_object, 500
 
@@ -89,4 +104,7 @@ class UserLogOut(Resource):
         current_user = get_jwt_identity()
         if current_user:
             response_object["message"] = "Successfully logged out."
+            jti = get_raw_jwt().get("jti")
+            revoke_token(jti=jti, user=current_user)
             return response_object, 200
+        return response_object, 401
