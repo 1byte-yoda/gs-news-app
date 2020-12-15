@@ -4,7 +4,7 @@
 import os
 from flask import Flask, jsonify
 from db import db
-from app.extensions import bcrypt, migrate
+from app.extensions import bcrypt, migrate, jwt
 from app.api.users import users_blueprint
 
 
@@ -21,6 +21,7 @@ def create_app(script_info=None):
     db.init_app(app)
     bcrypt.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
 
     # register blueprints
     app.register_blueprint(users_blueprint)

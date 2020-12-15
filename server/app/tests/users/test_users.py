@@ -2,8 +2,13 @@
 
 
 import json
+from flask import current_app
+from app.api.users.models import User
 from app.tests.base import BaseTestCase
-from app.tests.utils import iso8601_pattern_matched, uuid_pattern_matched
+from app.utils import (
+    iso8601_pattern_matched,
+    uuid_pattern_matched
+)
 
 
 class TestUserView(BaseTestCase):
@@ -40,7 +45,7 @@ class TestUserView(BaseTestCase):
             )
             data = json.loads(response.data)
             self.assertEqual(response.status_code, 400)
-            self.assertIn('Invalid payload.', data['message'])
+            self.assertIn("Invalid payload.", data["message"])
 
     def test_add_user_invalid_json_keys(self):
         """
@@ -71,31 +76,138 @@ class TestUserView(BaseTestCase):
             self.assertEqual(response_email_only.status_code, 400)
             self.assertEqual(response_password_only.status_code, 400)
             self.assertEqual(response_name_only.status_code, 400)
-            self.assertIn('Invalid payload.', data_email_only['message'])
-            self.assertIn('Invalid payload.', data_name_only['message'])
-            self.assertIn('Invalid payload.', data_password_only['message'])
+            self.assertIn("Invalid payload.", data_email_only["message"])
+            self.assertIn("Invalid payload.", data_name_only["message"])
+            self.assertIn("Invalid payload.", data_password_only["message"])
 
-    def test_add_user_duplicate_email(self):
+    def test_register_user_duplicate_email(self):
         """Ensure error is thrown if the email already exists."""
         data_test = {
-            'name': 'juan',
-            'email': 'michael@abc.org',
-            'password': 'samplepassword',
+            "name": "juan",
+            "email": "michael@abc.org",
+            "password": "samplepassword",
         }
         with self.client:
             self.client.post(
-                '/user/register',
+                "/user/register",
                 data=json.dumps(data_test),
-                content_type='application/json'
+                content_type="application/json"
             )
             response = self.client.post(
-                '/user/register',
+                "/user/register",
                 data=json.dumps(data_test),
-                content_type='application/json'
+                content_type="application/json"
             )
             data = json.loads(response.data)
             self.assertEqual(response.status_code, 400)
             self.assertIn(
-                'Sorry. That email already exists.',
-                data['message']
+                "Sorry. That email already exists.",
+                data["message"]
             )
+
+    def test_registered_user_login(self):
+        """Ensure that a registered user can login."""
+        data_test = {
+            "name": "juan",
+            "email": "michael@abc.org",
+            "password": "samplepassword",
+        }
+        user = User(**data_test)
+        user.insert()
+        with self.client:
+            response = self.client.post(
+                "/user/login",
+                data=json.dumps(data_test),
+                content_type="application/json"
+            )
+            data = json.loads(response.data)
+            self.assertTrue(data["token"])
+            self.assertTrue(response.content_type == "application/json")
+            self.assertEqual(response.status_code, 200)
+
+    def test_not_registered_user_login(self):
+        """Ensure that a non-registered user cannot login."""
+        data_test = {
+            "email": "michael@abc.org",
+            "password": "samplepassword",
+        }
+        with self.client:
+            response = self.client.post(
+                "/user/login",
+                data=json.dumps(data_test),
+                content_type="application/json"
+            )
+            data = json.loads(response.data)
+            self.assertTrue(data["message"] == "User does not exist.")
+            self.assertTrue(response.content_type == "application/json")
+            self.assertEqual(response.status_code, 404)
+
+    def test_valid_logout(self):
+        """Ensure that a logged in user can log out."""
+        data_test = {
+            "name": "james",
+            "email": "michael@abc.org",
+            "password": "samplepassword",
+        }
+        user = User(**data_test)
+        user.insert()
+        with self.client:
+            resp_login = self.client.post(
+                "/user/login",
+                data=json.dumps({
+                    "email": data_test["email"],
+                    "password": data_test["password"]
+                }),
+                content_type="application/json"
+            )
+            token = json.loads(resp_login.data)["token"]
+            response = self.client.get(
+                "/user/logout",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            data = json.loads(response.data.decode())
+            self.assertTrue(data["message"] == "Successfully logged out.")
+            self.assertEqual(response.status_code, 200)
+
+    def test_invalid_logout_expired_token(self):
+        """Ensure that a user with expired token cannot log out."""
+        data_test = {
+            "name": "james",
+            "email": "michael@abc.org",
+            "password": "samplepassword",
+        }
+        user = User(**data_test)
+        user.insert()
+        current_app.config['JWT_ACCESS_TOKEN_EXPIRES'] = -1
+        with self.client:
+            resp_login = self.client.post(
+                "/user/login",
+                data=json.dumps({
+                    "email": data_test["email"],
+                    "password": data_test["password"]
+                }),
+                content_type="application/json"
+            )
+            token = json.loads(resp_login.data.decode())["token"]
+            response = self.client.get(
+                "/user/logout",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            data = json.loads(response.data)
+            import sys
+            sys.stderr.write(str(data))
+            self.assertTrue(
+                data["message"] == "Signature expired. Please log in again."
+            )
+            self.assertEqual(response.status_code, 401)
+
+    def test_invalid_logout(self):
+        """Ensure that the token provided before logging out is valid."""
+        with self.client:
+            response = self.client.get(
+                "/user/logout",
+                headers={"Authorization": "Bearer invalid"})
+            data = json.loads(response.data)
+            self.assertTrue(
+                data["message"] == "Invalid token. Please log in again.")
+            self.assertEqual(response.status_code, 401)

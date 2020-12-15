@@ -4,7 +4,7 @@
 from sqlalchemy.exc import IntegrityError
 from app.tests.base import BaseTestCase
 from app.api.users.models import User
-from app.tests.utils import uuid_pattern_matched, iso8601_pattern_matched
+from app.utils import uuid_pattern_matched, iso8601_pattern_matched
 from app import db
 
 
@@ -73,12 +73,3 @@ class TestUserModel(BaseTestCase):
         self.assertIn(
             "password is not a readable attribute", str(context.exception)
         )
-
-    def test_encode_auth_token(self):
-        user = User(
-            name="justatest",
-            email="test@test.com",
-            password="twentyonepilots"
-        )
-        auth_token = user.encode_auth_token(user.id)
-        self.assertTrue(isinstance(auth_token, bytes))

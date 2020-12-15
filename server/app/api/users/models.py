@@ -2,11 +2,9 @@
 
 
 import datetime
-from typing import Dict, Union
+from typing import Dict
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from flask import current_app
-import jwt
 from app import db, bcrypt
 from app.api.utils import ISO8601DateTime
 
@@ -70,34 +68,3 @@ class User(db.Model):
         """Insert into the database."""
         db.session.add(self)
         db.session.commit()
-
-    def encode_auth_token(self, user_id):
-        """Generates the auth token."""
-        try:
-            payload = {
-                "exp": datetime.datetime.utcnow() + datetime.timedelta(
-                    days=current_app.config.get("TOKEN_EXPIRATION_DAYS"),
-                    seconds=current_app.config.get("TOKEN_EXPIRATION_SECONDS")
-                ),
-                "iat": datetime.datetime.utcnow(),
-                "sub": user_id
-            }
-            return jwt.encode(
-                payload,
-                current_app.config.get("SECRET_KEY"),
-                algorithm="HS256"
-            )
-        except Exception as e:
-            return e
-
-    @staticmethod
-    def decode_auth_token(auth_token: str) -> Union[int, str]:
-        """Decodes the auth token."""
-        try:
-            payload = jwt.decode(
-                auth_token, current_app.config.get("SECRET_KEY"))
-            return payload["sub"]
-        except jwt.ExpiredSignatureError:
-            return "Signature expired. Please log in again."
-        except jwt.InvalidTokenError:
-            return "Invalid token. Please log in again."

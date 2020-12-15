@@ -5,7 +5,6 @@ from datetime import datetime
 from typing import Union
 from sqlalchemy.types import (
     TypeDecorator,
-    Numeric,
     DateTime
 )
 
@@ -26,8 +25,4 @@ class ISO8601DateTime(TypeDecorator):
     def process_result_value(self, value, dialect) -> Union[None, str]:
         if value is None:
             return None
-        return (
-            value.astimezone()
-                .replace(microsecond=0)
-                .isoformat()
-        )
+        return value.astimezone().replace(microsecond=0).isoformat()

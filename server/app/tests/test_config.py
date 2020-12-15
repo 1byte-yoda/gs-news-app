@@ -29,8 +29,7 @@ class TestDevelopmentConfig(TestCase):
         self.assertTrue(
             app.config['BCRYPT_LOG_ROUNDS'] == bcrypt_rounds_dev
         )
-        self.assertTrue(app.config['TOKEN_EXPIRATION_DAYS'] == 30)
-        self.assertTrue(app.config['TOKEN_EXPIRATION_SECONDS'] == 0)
+        self.assertTrue(app.config['JWT_ACCESS_TOKEN_EXPIRES'] == 2592000)
 
 
 class TestTestingConfig(TestCase):
@@ -51,8 +50,7 @@ class TestTestingConfig(TestCase):
         self.assertTrue(
             app.config['BCRYPT_LOG_ROUNDS'] == bcrypt_rounds_test
         )
-        self.assertTrue(app.config['TOKEN_EXPIRATION_DAYS'] == 0)
-        self.assertTrue(app.config['TOKEN_EXPIRATION_SECONDS'] == 3)
+        self.assertTrue(app.config['JWT_ACCESS_TOKEN_EXPIRES'] == 3)
 
 
 class TestProductionConfig(TestCase):
@@ -68,8 +66,7 @@ class TestProductionConfig(TestCase):
         self.assertTrue(
             app.config['BCRYPT_LOG_ROUNDS'] == bcrypt_rounds
         )
-        self.assertTrue(app.config['TOKEN_EXPIRATION_DAYS'] == 30)
-        self.assertTrue(app.config['TOKEN_EXPIRATION_SECONDS'] == 0)
+        self.assertTrue(app.config['JWT_ACCESS_TOKEN_EXPIRES'] == 2592000)
 
 
 if __name__ == "__main__":
