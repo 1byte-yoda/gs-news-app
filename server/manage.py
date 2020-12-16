@@ -4,7 +4,7 @@
 import unittest
 import coverage
 from flask.cli import FlaskGroup
-from app import create_app, db
+from app import create_app, db, redis_client
 from app.api.users.models import User
 
 
@@ -29,6 +29,7 @@ def recreate_db():
     db.drop_all()
     db.create_all()
     db.session.commit()
+    redis_client.flushdb()
 
 
 @cli.command("seed_db")

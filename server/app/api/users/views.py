@@ -15,10 +15,6 @@ from app.api.users.models import User
 
 
 class UsersRegister(Resource):
-    @jwt_required
-    def get(self):
-        return {"can_access": True}
-
     def post(self):
         post_data = request.get_json()
         response_object = {

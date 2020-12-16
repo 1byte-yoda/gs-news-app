@@ -13,6 +13,9 @@ from app.extensions import (
     redis_client
 )
 from app.api.users import users_blueprint
+from app.api.topics import topics_blueprint
+from app.api.topics.models import Topic
+from app.api.messages.models import Message
 
 
 def create_app(script_info=None):
@@ -37,12 +40,20 @@ def create_app(script_info=None):
 
     # register blueprints
     app.register_blueprint(users_blueprint)
+    app.register_blueprint(topics_blueprint)
 
     # shell context for flask cli
     @app.shell_context_processor
     def ctx():
         from app.api.users.models import User
-        return {"app": app, "db": db, "User": User, "redis_store": redis_store}
+        return {
+            "app": app,
+            "db": db,
+            "User": User,
+            "Topic": Topic,
+            "Message": Message,
+            "redis_store": redis_store
+        }
 
     @app.route("/ping", methods=["GET"])
     def ping_pong():
