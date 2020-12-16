@@ -14,6 +14,7 @@ COV = coverage.coverage(
     omit=[
         'app/tests/*',
         'app/config.py',
+        'app/extensions.py'
     ]
 )
 COV.start()

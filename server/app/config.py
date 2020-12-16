@@ -13,6 +13,7 @@ class BaseConfig:
     JWT_ACCESS_TOKEN_EXPIRES = 2592000
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
+    REDIS_URL = "redis://redis:6379/0"
 
 
 class DevelopmentConfig(BaseConfig):

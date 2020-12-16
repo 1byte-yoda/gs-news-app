@@ -2,11 +2,10 @@
 
 
 import json
+import time
 from flask import current_app
-from app.api.users.models import (
-    User,
-    UserToken
-)
+from flask_jwt_extended import get_jti
+from app.api.users.models import User
 from app.tests.base import BaseTestCase
 from app.utils import (
     iso8601_pattern_matched,
@@ -146,8 +145,11 @@ class TestUserView(BaseTestCase):
             self.assertEqual(response.status_code, 404)
 
     def test_not_allowed_more_than_one_concurrent_user(self):
-        """
-        Ensure that only one token per user is valid.
+        """Ensure that only one token per user is valid.
+
+        First user logs in using account X: Gets a valid token A.
+        Second user logs in using account X: Gets a valid token B.
+        token A becomes invalid.
         """
         data_test = {
             "name": "juan",
@@ -157,7 +159,7 @@ class TestUserView(BaseTestCase):
         user = User(**data_test)
         user.insert()
         with self.client:
-            self.client.post(
+            first_login = self.client.post(
                 "/user/login",
                 data=json.dumps({
                     "email": data_test["email"],
@@ -173,13 +175,57 @@ class TestUserView(BaseTestCase):
                 }),
                 content_type="application/json"
             )
+            data1 = json.loads(first_login.data.decode())
             data2 = json.loads(second_login.data.decode())
-            users = UserToken.query.filter_by(
-                        user_identity=user.id.__str__(),
-                        revoked="f"
-                    ).all()
-            self.assertTrue(all([u.revoked for u in users[:-1]]))
-            self.assertIn("token", data2)
+            token1 = data1.get("token")
+            token2 = data2.get("token")
+            # TODO: Change the route to /topic once implemented.
+            logout1 = self.client.get(
+                "/user/logout",
+                headers={"Authorization": f"Bearer {token1}"}
+            )
+            logout2 = self.client.get(
+                "/user/logout",
+                headers={"Authorization": f"Bearer {token2}"}
+            )
+            data1 = json.loads(logout1.data.decode())
+            data2 = json.loads(logout2.data.decode())
+            self.assertTrue(logout1.status_code == 401)
+            self.assertEqual(
+                data1["message"],
+                "Invalid token. Please log in again."
+            )
+            self.assertTrue(logout2.status_code == 200)
+            self.assertEqual(
+                data2["message"],
+                "Successfully logged out."
+            )
+
+    def test_jwt_is_invalid(self):
+        """Ensure that the token provided is in the correct format."""
+        data_test = {
+            "name": "juan",
+            "email": "michael@abc.org",
+            "password": "samplepassword",
+        }
+        user = User(**data_test)
+        user.insert()
+        with self.client:
+            response = self.client.post(
+                "/user/login",
+                data=json.dumps({
+                    "email": data_test["email"],
+                    "password": data_test["password"]
+                }),
+                content_type="application/json"
+            )
+            data = json.loads(response.data)
+            token = data.get("token")
+            with self.assertRaises(Exception) as context:
+                get_jti(token + "something-invalid")
+            self.assertIn(
+                "Signature verification failed", str(context.exception)
+            )
 
     def test_valid_logout(self):
         """Ensure that a logged in user can log out."""
@@ -205,7 +251,6 @@ class TestUserView(BaseTestCase):
                 headers={"Authorization": f"Bearer {token}"}
             )
             data = json.loads(response.data.decode())
-            user = User.find(id=user.id)
             self.assertTrue(data["message"] == "Successfully logged out.")
             self.assertEqual(response.status_code, 200)
 
@@ -218,8 +263,7 @@ class TestUserView(BaseTestCase):
         }
         user = User(**data_test)
         user.insert()
-        current_app.config['JWT_ACCESS_TOKEN_EXPIRES'] = -1
-        current_app.config['JWT_BLACKLIST_ENABLED'] = False
+        current_app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 1
         with self.client:
             resp_login = self.client.post(
                 "/user/login",
@@ -229,7 +273,8 @@ class TestUserView(BaseTestCase):
                 }),
                 content_type="application/json"
             )
-            token = json.loads(resp_login.data.decode())["token"]
+            token = json.loads(resp_login.data.decode()).get("token")
+            time.sleep(3)
             response = self.client.get(
                 "/user/logout",
                 headers={"Authorization": f"Bearer {token}"}
