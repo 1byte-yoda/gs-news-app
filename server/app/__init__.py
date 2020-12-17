@@ -42,6 +42,8 @@ def create_app(script_info=None):
     app.register_blueprint(users_blueprint)
     from app.api.topics import topics_blueprint
     app.register_blueprint(topics_blueprint)
+    from app.api.messages import messages_blueprint
+    app.register_blueprint(messages_blueprint)
 
     # shell context for flask cli
     @app.shell_context_processor

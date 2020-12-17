@@ -3,7 +3,10 @@
 
 from flask import request
 from flask_restful import Resource
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    jwt_required,
+    get_jwt_identity
+)
 from app.api.topics.models import Topic
 from db import db
 
@@ -91,4 +94,50 @@ class SingleTopicViews(Resource):
             db.session.rollback()
             db.session.flush()
             response_object["message"] = "Try again"
+            return response_object, 500
+
+    @jwt_required
+    def delete(self, id):
+        response_object = {
+            "message": "Invalid payload."
+        }
+        current_user = get_jwt_identity()
+        topic = Topic.find(id=id)
+        if not topic or topic.deleted_at:
+            response_object["message"] = "Topic does not exists."
+            return response_object, 404
+        current_user = get_jwt_identity()
+        if str(current_user) != str(topic.created_by):
+            response_object["message"] = (
+                "You do not have permission to do that."
+            )
+            return response_object, 401
+        try:
+            topic.delete()
+            return {"success": True}, 202
+        except Exception:
+            db.session.rollback()
+            db.session.flush()
+            response_object["message"] = "Try again"
+            return response_object, 500
+
+
+class MultipleTopicViews(Resource):
+    @jwt_required
+    def get(self):
+        response_object = {
+            "message": "Try again"
+        }
+        current_user = get_jwt_identity()
+        try:
+            topics = Topic.find_all(
+                created_by=current_user
+            )
+            response_object = {
+                "data": topics
+            }
+            return response_object, 200
+        except Exception:
+            db.session.rollback()
+            db.session.flush()
             return response_object, 500

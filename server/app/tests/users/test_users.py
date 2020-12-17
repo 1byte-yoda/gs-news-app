@@ -2,6 +2,8 @@
 
 
 import json
+import time
+from flask import current_app
 from flask_jwt_extended import get_jti
 from app.api.users.models import User
 from app.tests.base import BaseTestCase
@@ -252,36 +254,36 @@ class TestUserView(BaseTestCase):
             self.assertTrue(data["message"] == "Successfully logged out.")
             self.assertEqual(response.status_code, 200)
 
-    # def test_invalid_logout_expired_token(self):
-    #     """Ensure that a user with expired token cannot log out."""
-    #     data_test = {
-    #         "name": "james",
-    #         "email": "michael@abcde.org",
-    #         "password": "samplepassword",
-    #     }
-    #     user = User(**data_test)
-    #     user.insert()
-    #     current_app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 1
-    #     with self.client:
-    #         resp_login = self.client.post(
-    #             "/user/login",
-    #             data=json.dumps({
-    #                 "email": data_test["email"],
-    #                 "password": data_test["password"]
-    #             }),
-    #             content_type="application/json"
-    #         )
-    #         token = json.loads(resp_login.data.decode()).get("token")
-    #         time.sleep(3)
-    #         response = self.client.get(
-    #             "/user/logout",
-    #             headers={"Authorization": f"Bearer {token}"}
-    #         )
-    #         data = json.loads(response.data)
-    #         self.assertTrue(
-    #             data["message"] == "Signature expired. Please log in again."
-    #         )
-    #         self.assertEqual(response.status_code, 401)
+    def test_invalid_logout_expired_token(self):
+        """Ensure that a user with expired token cannot log out."""
+        data_test = {
+            "name": "james",
+            "email": "michael@abcde.org",
+            "password": "samplepassword",
+        }
+        user = User(**data_test)
+        user.insert()
+        current_app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 1
+        with self.client:
+            resp_login = self.client.post(
+                "/user/login",
+                data=json.dumps({
+                    "email": data_test["email"],
+                    "password": data_test["password"]
+                }),
+                content_type="application/json"
+            )
+            token = json.loads(resp_login.data.decode()).get("token")
+            time.sleep(3)
+            response = self.client.get(
+                "/user/logout",
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            data = json.loads(response.data)
+            self.assertTrue(
+                data["message"] == "Signature expired. Please log in again."
+            )
+            self.assertEqual(response.status_code, 401)
 
     def test_invalid_logout(self):
         """Ensure that the token provided before logging out is valid."""

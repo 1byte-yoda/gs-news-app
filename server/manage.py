@@ -34,6 +34,7 @@ def recreate_db():
 @cli.command("seed_db")
 def seed_db():
     """Seeds the database."""
+    import string
     from app.api.users.models import User
     from app.api.topics.models import Topic
     from app.api.messages.models import Message
@@ -43,22 +44,28 @@ def seed_db():
         password="petmalu"
     )
     user2 = User(
-        name="gijoe",
-        email="joe@gs-admin.com",
-        password="hello123"
+        name="juan",
+        email="michael@abc.org",
+        password="samplepassword"
     )
     user1.insert()
     user2.insert()
-    topic = Topic(
-        subject="subject",
-        description="description",
-        created_by=user1.id.__str__(),
-        updated_by=user1.id.__str__()
-    )
-    topic.insert()
-    topic.messages.append(Message("Hello world 1"))
-    topic.messages.append(Message("Hello world 2"))
-    topic.messages.append(Message("Hello world 3"))
+    for i in list(string.ascii_lowercase):
+        topic = Topic(
+            subject=f"{i} Subject",
+            description=f"{i} Description",
+            created_by=user2.id.__str__(),
+            updated_by=user2.id.__str__()
+        )
+        db.session.add(topic)
+    for i in range(1, 11):
+        topic.messages.append(
+            Message(
+                message=f"Hello world {i}",
+                created_by=user2.id.__str__(),
+                updated_by=user2.id.__str__()
+            )
+        )
     db.session.commit()
 
 
@@ -91,6 +98,3 @@ def cov():
 
 if __name__ == "__main__":
     cli()
-    from app.api.users.models import User
-    from app.api.topics.models import Topic
-    from app.api.messages.models import Message
