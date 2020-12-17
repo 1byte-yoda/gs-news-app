@@ -10,7 +10,8 @@ from flask_jwt_extended import (
     get_jti,
     create_access_token
 )
-from app import db, bcrypt, redis_client
+from db import db
+from app.extensions import bcrypt, redis_client
 from app.api.users.models import User
 
 
@@ -42,9 +43,11 @@ class UsersRegister(Resource):
                 return response_object, 400
         except exc.IntegrityError:
             db.session.rollback()
+            db.session.flush()
             return response_object, 400
         except (exc.IntegrityError, ValueError, TypeError):
             db.session.rollback()
+            db.session.flush()
             return response_object, 400
 
 
@@ -88,8 +91,9 @@ class UserLogin(Resource):
             else:
                 response_object["message"] = "User does not exist."
                 return response_object, 404
-        except Exception as e:
-            print(e)
+        except Exception:
+            db.session.rollback()
+            db.session.flush()
             response_object["message"] = "Try again."
             return response_object, 500
 

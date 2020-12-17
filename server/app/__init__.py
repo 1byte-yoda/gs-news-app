@@ -6,16 +6,15 @@ from flask import Flask, jsonify
 from flask_redis import FlaskRedis
 from fakeredis import FakeStrictRedis
 from db import db
+from app.api.users.models import User
+from app.api.topics.models import Topic
+from app.api.messages.models import Message
 from app.extensions import (
     bcrypt,
     migrate,
     jwt,
     redis_client
 )
-from app.api.users import users_blueprint
-from app.api.topics import topics_blueprint
-from app.api.topics.models import Topic
-from app.api.messages.models import Message
 
 
 def create_app(script_info=None):
@@ -39,13 +38,14 @@ def create_app(script_info=None):
     redis_store.init_app(app)
 
     # register blueprints
+    from app.api.users import users_blueprint
     app.register_blueprint(users_blueprint)
+    from app.api.topics import topics_blueprint
     app.register_blueprint(topics_blueprint)
 
     # shell context for flask cli
     @app.shell_context_processor
     def ctx():
-        from app.api.users.models import User
         return {
             "app": app,
             "db": db,

@@ -53,3 +53,36 @@ class TestUserModel(BaseTestCase):
         )
         topic.insert()
         self.assertTrue(isinstance(topic.json(), dict))
+
+    def test_topic_message_relationship(self):
+        user = User(
+            name="testname",
+            email="testme@test.com",
+            password="twentyonepilots"
+        )
+        user.insert()
+        topic = Topic(
+            subject="subject",
+            description="description",
+            created_by=user.id.__str__(),
+            updated_by=user.id.__str__()
+        )
+        topic.insert()
+        self.assertIsInstance(topic.messages, list)
+
+    def test_topic_user_relationship(self):
+        user = User(
+            name="testname",
+            email="testme@test.com",
+            password="twentyonepilots"
+        )
+        user.insert()
+        topic = Topic(
+            subject="subject",
+            description="description",
+            created_by=user.id.__str__(),
+            updated_by=user.id.__str__()
+        )
+        topic.insert()
+        self.assertEqual(user.id, topic.created_by)
+        self.assertEqual(user.id, topic.updated_by)

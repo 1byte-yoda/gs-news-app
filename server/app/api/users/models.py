@@ -5,7 +5,8 @@ import datetime
 from typing import Dict
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
-from app import db, bcrypt
+from app.extensions import bcrypt
+from db import db
 from app.api.utils import ISO8601DateTime
 from app.api.topics.models import Topic
 
@@ -29,7 +30,8 @@ class User(db.Model):
     updated_at = db.Column(
         ISO8601DateTime,
         nullable=False,
-        default=datetime.datetime.now
+        default=datetime.datetime.now,
+        onupdate=datetime.datetime.now
     )
     created_topics = db.relationship(
         Topic,
