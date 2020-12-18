@@ -2,7 +2,7 @@
 
 
 import os
-from flask import Flask, jsonify
+from flask import Flask
 from flask_redis import FlaskRedis
 from fakeredis import FakeStrictRedis
 from db import db
@@ -54,7 +54,7 @@ def create_app(script_info=None):
     app.add_url_rule("/ping", methods=["GET"], view_func=ping_pong)
     app.add_url_rule("/graphql", methods=["GET"], view_func=graphql_playground)
     app.add_url_rule("/graphql", methods=["POST"], view_func=graphql_server)
-    
+
     # shell context for flask cli
     @app.shell_context_processor
     def ctx():

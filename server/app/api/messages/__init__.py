@@ -12,5 +12,11 @@ from app.api.messages.views import (
 messages_blueprint = Blueprint("messages", __name__)
 messages_api = Api(messages_blueprint)
 
-messages_api.add_resource(SingleMessageViews, "/topic/<string:topic_id>/message")
-messages_api.add_resource(MultipleMessageViews, "/topic/<string:topic_id>/messages")
+messages_api.add_resource(
+    SingleMessageViews,
+    "/topic/<string:topic_id>/message"
+)
+messages_api.add_resource(
+    MultipleMessageViews,
+    "/topic/<string:topic_id>/messages"
+)

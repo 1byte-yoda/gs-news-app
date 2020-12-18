@@ -50,7 +50,6 @@ def resolve_topic_update(obj, info, token, id, subject, description):
     return payload
 
 
-
 @convert_kwargs_to_snake_case
 def resolve_topic_delete(obj, info, token, id):
     url = url_for("topics.singletopicviews", id=id, _external=True)

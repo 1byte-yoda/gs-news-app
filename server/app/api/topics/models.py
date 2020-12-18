@@ -47,11 +47,11 @@ class Topic(db.Model):
     messages = db.relationship("Message")
     creator = db.relationship(
         User,
-        primaryjoin=created_by==User.id
+        primaryjoin=(created_by == User.id)
     )
     updator = db.relationship(
         User,
-        primaryjoin=updated_by==User.id
+        primaryjoin=(updated_by == User.id)
     )
 
     def __init__(self, subject, description, created_by, updated_by):

@@ -67,6 +67,7 @@ def graphql_server():
     status_code = 200 if success else 400
     return jsonify(result), status_code
 
+
 def ping_pong():
     """Check application"s health"""
     return jsonify({

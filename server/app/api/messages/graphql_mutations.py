@@ -11,7 +11,11 @@ def resolve_message_create(obj, info, token, topic_id, message):
     data = {
         "message": message
     }
-    url = url_for("messages.singlemessageviews", topic_id=topic_id, _external=True)
+    url = url_for(
+        "messages.singlemessageviews",
+        topic_id=topic_id,
+        _external=True
+    )
     payload = requests.post(
         url=url,
         json=data,
