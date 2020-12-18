@@ -9,6 +9,11 @@ from db import db
 from app.api.users.models import User
 from app.api.topics.models import Topic
 from app.api.messages.models import Message
+from app.api import (
+    ping_pong,
+    graphql_playground,
+    graphql_server
+)
 from app.extensions import (
     bcrypt,
     migrate,
@@ -45,6 +50,11 @@ def create_app(script_info=None):
     from app.api.messages import messages_blueprint
     app.register_blueprint(messages_blueprint)
 
+    # add core application routes
+    app.add_url_rule("/ping", methods=["GET"], view_func=ping_pong)
+    app.add_url_rule("/graphql", methods=["GET"], view_func=graphql_playground)
+    app.add_url_rule("/graphql", methods=["POST"], view_func=graphql_server)
+    
     # shell context for flask cli
     @app.shell_context_processor
     def ctx():
@@ -57,11 +67,4 @@ def create_app(script_info=None):
             "redis_store": redis_store
         }
 
-    @app.route("/ping", methods=["GET"])
-    def ping_pong():
-        """Check application"s health"""
-        return jsonify({
-            "status": "success",
-            "message": "pong!"
-        })
     return app

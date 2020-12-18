@@ -22,6 +22,7 @@ class UsersRegister(Resource):
             "message": "Invalid payload."
         }
         if not post_data:
+            print(post_data)
             return response_object, 400
         email = post_data.get("email")
         password = post_data.get("password")
@@ -41,10 +42,6 @@ class UsersRegister(Resource):
                     "Sorry. That email already exists."
                 )
                 return response_object, 400
-        except exc.IntegrityError:
-            db.session.rollback()
-            db.session.flush()
-            return response_object, 400
         except (exc.IntegrityError, ValueError, TypeError):
             db.session.rollback()
             db.session.flush()

@@ -8,6 +8,7 @@ from flask import current_app
 from sqlalchemy.dialects.postgresql import UUID
 from app.api.utils import ISO8601DateTime
 from app.api.topics.models import Topic
+from app.api.users.models import User
 from app.api.messages.exceptions import TopicNotFound
 from db import db
 
@@ -44,6 +45,14 @@ class Message(db.Model):
         default=datetime.datetime.now,
         onupdate=datetime.datetime.now
     )
+    creator = db.relationship(
+        User,
+        primaryjoin=created_by==User.id
+    )
+    updator = db.relationship(
+        User,
+        primaryjoin=updated_by==User.id
+    )
 
     def __init__(self, message, created_by, updated_by):
         self.message = message
@@ -55,8 +64,8 @@ class Message(db.Model):
             "id": str(self.id),
             "topic_id": str(self.topic_id),
             "message": self.message,
-            "created_by": str(self.created_by),
-            "updated_by": str(self.updated_by),
+            "created_by": self.creator.json(),
+            "updated_by": self.updator.json(),
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }

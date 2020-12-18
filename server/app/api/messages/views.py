@@ -13,7 +13,7 @@ from app.api.messages.exceptions import TopicNotFound
 
 class SingleMessageViews(Resource):
     @jwt_required
-    def post(self, id):
+    def post(self, topic_id):
         post_data = request.get_json()
         response_object = {
             "message": "Invalid payload."
@@ -28,7 +28,7 @@ class SingleMessageViews(Resource):
                 created_by=current_user,
                 updated_by=current_user
             )
-            new_message.insert(topic_id=id)
+            new_message.insert(topic_id=topic_id)
             response_object = new_message.json()
             return response_object, 200
         except TopicNotFound as e:
@@ -41,12 +41,12 @@ class SingleMessageViews(Resource):
 
 class MultipleMessageViews(Resource):
     @jwt_required
-    def get(self, id):
+    def get(self, topic_id):
         response_object = {
             "message": "Topic does not exists."
         }
         try:
-            messages = Message.find_all(topic_id=id)
+            messages = Message.find_all(topic_id=topic_id)
             response_object = {
                 "data": messages
             }

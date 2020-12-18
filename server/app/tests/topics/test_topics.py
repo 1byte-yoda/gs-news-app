@@ -56,11 +56,11 @@ class TestTopicView(BaseTestCase):
                 data_test["description"],
                 create_topic_data["description"]
             )
-            self.assertTrue(
-                uuid_pattern_matched(create_topic_data["created_by"])
+            self.assertIsInstance(
+                create_topic_data["created_by"], dict
             )
             self.assertTrue(
-                uuid_pattern_matched(create_topic_data["updated_by"])
+                create_topic_data["updated_by"], dict
             )
             self.assertTrue(
                 iso8601_pattern_matched(create_topic_data["created_at"])

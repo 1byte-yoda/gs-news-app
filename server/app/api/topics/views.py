@@ -47,11 +47,36 @@ class CreateTopicView(Resource):
         except Exception:
             db.session.rollback()
             db.session.flush()
-            response_object["message"] = "Try again"
+            response_object["message"] = "Try again."
             return response_object, 500
 
 
 class SingleTopicViews(Resource):
+    @jwt_required
+    def get(self, id):
+        response_object = {
+            "message": "Invalid payload."
+        }
+        try:
+            topic = Topic.find(id=id)
+            if not topic:
+                return {
+                    "message": "Topic does not exists."
+                }, 404
+            response_object = {
+                "data": topic.json()
+            }
+            return response_object, 200
+        except (ValueError, TypeError):
+            db.session.rollback()
+            db.session.flush()
+            return response_object, 400
+        except Exception:
+            response_object["message"] = "Try again."
+            db.session.rollback()
+            db.session.flush()
+            return response_object, 500
+
     @jwt_required
     def post(self, id):
         current_user = get_jwt_identity()
@@ -93,7 +118,7 @@ class SingleTopicViews(Resource):
         except Exception:
             db.session.rollback()
             db.session.flush()
-            response_object["message"] = "Try again"
+            response_object["message"] = "Try again."
             return response_object, 500
 
     @jwt_required
@@ -118,7 +143,7 @@ class SingleTopicViews(Resource):
         except Exception:
             db.session.rollback()
             db.session.flush()
-            response_object["message"] = "Try again"
+            response_object["message"] = "Try again."
             return response_object, 500
 
 
@@ -126,18 +151,20 @@ class MultipleTopicViews(Resource):
     @jwt_required
     def get(self):
         response_object = {
-            "message": "Try again"
+            "message": "Invalid payload."
         }
-        current_user = get_jwt_identity()
         try:
-            topics = Topic.find_all(
-                created_by=current_user
-            )
+            topics = Topic.find_all()
             response_object = {
                 "data": topics
             }
             return response_object, 200
+        except (ValueError, TypeError):
+            db.session.rollback()
+            db.session.flush()
+            return response_object, 400
         except Exception:
+            response_object["message"] = "Try again."
             db.session.rollback()
             db.session.flush()
             return response_object, 500

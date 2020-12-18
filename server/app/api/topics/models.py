@@ -7,6 +7,7 @@ import uuid
 from flask import current_app
 from sqlalchemy.dialects.postgresql import UUID
 from app.api.utils import ISO8601DateTime
+from app.api.users.models import User
 from db import db
 
 
@@ -20,6 +21,14 @@ class Topic(db.Model):
     )
     subject = db.Column(db.String(128), nullable=True)
     description = db.Column(db.Text, nullable=True)
+    created_by = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey("users.id"),
+    )
+    updated_by = db.Column(
+        UUID(as_uuid=True),
+        db.ForeignKey("users.id"),
+    )
     created_at = db.Column(
         ISO8601DateTime,
         nullable=False,
@@ -36,6 +45,14 @@ class Topic(db.Model):
         nullable=True
     )
     messages = db.relationship("Message")
+    creator = db.relationship(
+        User,
+        primaryjoin=created_by==User.id
+    )
+    updator = db.relationship(
+        User,
+        primaryjoin=updated_by==User.id
+    )
 
     def __init__(self, subject, description, created_by, updated_by):
         self.subject = subject
@@ -48,11 +65,12 @@ class Topic(db.Model):
             "id": str(self.id),
             "subject": self.subject,
             "description": self.description,
-            "created_by": str(self.created_by),
-            "updated_by": str(self.updated_by),
+            "created_by": self.creator.json(),
+            "updated_by": self.creator.json(),
             "created_at": self.created_at,
             "updated_at": self.updated_at,
-            "deleted_at": self.deleted_at
+            "deleted_at": self.deleted_at,
+            "messages": [m.json() for m in self.messages]
         }
 
     @classmethod
@@ -66,10 +84,10 @@ class Topic(db.Model):
             return cls.query.filter_by(**kwargs).first()
 
     @classmethod
-    def find_all(cls, created_by):
+    def find_all(cls):
         """Find all topics in the database that are not deleted yet."""
         topics = (
-            cls.query.filter_by(deleted_at=None, created_by=created_by)
+            cls.query.filter_by(deleted_at=None)
             .order_by(cls.subject.desc())
             .paginate(
                 page=current_app.config.get("PAGE_COUNT"),

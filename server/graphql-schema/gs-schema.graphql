@@ -1,0 +1,74 @@
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    created_at: String!
+    updated_at: String!
+}
+
+type Topic {
+    id: ID!
+    subject: String
+    created_by: User!
+    updated_by: User!
+    created_at: String!
+    updated_at: String!
+    deleted_at: String
+    messages: [Message]
+}
+
+type Message {
+    id: ID!
+    message: String!
+    created_by: User!
+    updated_by: User!
+    created_at: String!
+    updated_at: String!
+}
+
+type Mutation {
+    user_register(
+        email: String!
+        name: String!
+        password: String!
+    ): User
+
+    user_login(
+        email: String!
+        password: String!
+    ): String
+
+    topic_create(
+        token: String!
+        subject: String!
+        description: String!
+    ): Topic
+
+    topic_update(
+        token: String!
+        id: ID!
+        subject: String
+        description: String
+    ): Topic
+
+    topic_delete(
+        token: String!
+        id: ID!
+    ): Boolean
+
+    message_create(
+        token: String!
+        topic_id: ID!
+        message: String!
+    ): Message
+}
+
+type Query {
+    topics(
+        token: String!
+    ): [Topic]
+    topic(
+        token: String!
+        id: ID!
+    ): Topic
+}
