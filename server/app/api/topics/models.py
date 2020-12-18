@@ -20,14 +20,6 @@ class Topic(db.Model):
     )
     subject = db.Column(db.String(128), nullable=True)
     description = db.Column(db.Text, nullable=True)
-    created_by = db.Column(
-        UUID(as_uuid=True),
-        db.ForeignKey("users.id")
-    )
-    updated_by = db.Column(
-        UUID(as_uuid=True),
-        db.ForeignKey("users.id"),
-    )
     created_at = db.Column(
         ISO8601DateTime,
         nullable=False,
