@@ -88,7 +88,8 @@ class UserLogin(Resource):
             else:
                 response_object["message"] = "User does not exist."
                 return response_object, 404
-        except Exception:
+        except Exception as e:
+            print(e)
             db.session.rollback()
             db.session.flush()
             response_object["message"] = "Try again."

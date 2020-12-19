@@ -1,13 +1,17 @@
 {
-  "name": "client",
+  "name": "gs_news_app_client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/graphql": "^14.5.0",
     "@types/jest": "24.0.16",
     "@types/node": "12.6.9",
     "@types/react": "16.8.24",
     "@types/react-dom": "16.8.5",
+    "apollo-boost": "^0.4.9",
+    "graphql": "^14.3.1",
     "react": "^16.8.6",
+    "react-apollo": "^3.1.5",
     "react-dom": "^16.8.6",
     "react-scripts": "3.0.1",
     "typescript": "^3.5.3"
@@ -16,7 +20,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "codegen:schema": "npx apollo client:download-schema --endpoint=http://192.168.99.107:5001/graphql",
+    "codegen:generate": "npx apollo client:codegen --localSchemaFile=schema.json --includes=src/**/*.tsx --target=typescript"
   },
   "eslintConfig": {
     "extends": "react-app"

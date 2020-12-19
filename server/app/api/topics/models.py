@@ -88,7 +88,7 @@ class Topic(db.Model):
         """Find all topics in the database that are not deleted yet."""
         topics = (
             cls.query.filter_by(deleted_at=None)
-            .order_by(cls.subject.desc())
+            .order_by(cls.subject.asc())
             .paginate(
                 page=current_app.config.get("PAGE_COUNT"),
                 per_page=current_app.config.get("POSTS_PER_PAGE"),

@@ -64,4 +64,6 @@ def resolve_topic_delete(obj, info, token, id):
         payload = payload.json()
         if payload.get("success"):
             payload = payload.get("success")
+        elif payload.get("message"):
+            raise Exception(payload["message"])
     return payload

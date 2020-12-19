@@ -2,6 +2,7 @@ version: '3.7'
 
 services:
   api:
+    container_name: api
     build: 
       context: ./server
       dockerfile: Dockerfile.api.dev
@@ -16,6 +17,7 @@ services:
       - db
       - redis
   db:
+    container_name: db
     build: 
       context: ./server
       dockerfile: Dockerfile.db.dev
@@ -24,12 +26,13 @@ services:
     env_file:
       - ./server/.env.db.dev-sample
   redis:
+    container_name: redis
     image: redis:6.0.5-alpine
   client:
-    container_name: client
+    container_name: ui
     build:
       context: ./client
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.client.dev
     volumes:
       - './client:/usr/src/app'
       - '/usr/src/app/node_modules'

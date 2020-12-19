@@ -5,6 +5,7 @@ import os
 from flask import Flask
 from flask_redis import FlaskRedis
 from fakeredis import FakeStrictRedis
+from flask_cors import CORS
 from db import db
 from app.api.users.models import User
 from app.api.topics.models import Topic
@@ -26,6 +27,9 @@ def create_app(script_info=None):
     """Application factory."""
     # instantiate the app
     app = Flask(__name__)
+
+    # enable cors
+    CORS(app)
 
     # set config
     app_settings = os.getenv("APP_SETTINGS")

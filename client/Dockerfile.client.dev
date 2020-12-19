@@ -1,0 +1,28 @@
+# base image
+FROM node:14.15.3-slim
+
+# install netcat
+RUN apt-get update && \
+    apt-get -y install netcat && \
+    apt-get clean
+
+# Create and define the application's working directory.
+RUN mkdir /usr/src/app
+WORKDIR /usr/src/app
+
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /usr/src/app/node_modules/.bin:$PATH
+
+# install the application's dependencies into the node_modules's directory.
+COPY package.json /usr/src/app/package.json
+COPY package-lock.json /usr/src/app/package-lock.json
+RUN npm install
+
+# add entrypoint.sh and update permission
+COPY ./entrypoint.sh /usr/src/app/entrypoint.sh
+RUN chmod +x /usr/src/app/entrypoint.sh
+
+# add app
+COPY . /usr/src/app
+
+CMD ["/usr/src/app/entrypoint.sh"]

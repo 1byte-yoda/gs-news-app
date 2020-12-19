@@ -4,4 +4,4 @@ build
 venv
 htmlcov
 .dockerignore
-Dockerfile.dev
+Dockerfile.client.dev
