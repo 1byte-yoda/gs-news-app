@@ -15,14 +15,13 @@ from app.extensions import bcrypt, redis_client
 from app.api.users.models import User
 
 
-class UsersRegister(Resource):
+class UserRegister(Resource):
     def post(self):
         post_data = request.get_json()
         response_object = {
             "message": "Invalid payload."
         }
         if not post_data:
-            print(post_data)
             return response_object, 400
         email = post_data.get("email")
         password = post_data.get("password")
@@ -88,8 +87,7 @@ class UserLogin(Resource):
             else:
                 response_object["message"] = "User does not exist."
                 return response_object, 404
-        except Exception as e:
-            print(e)
+        except Exception:
             db.session.rollback()
             db.session.flush()
             response_object["message"] = "Try again."

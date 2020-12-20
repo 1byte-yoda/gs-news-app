@@ -163,8 +163,7 @@ class MultipleTopicViews(Resource):
             db.session.rollback()
             db.session.flush()
             return response_object, 400
-        except Exception as e:
-            print(e)
+        except Exception:
             response_object["message"] = "Try again."
             db.session.rollback()
             db.session.flush()

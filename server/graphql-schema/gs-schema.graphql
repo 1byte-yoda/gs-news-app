@@ -9,6 +9,7 @@ type User {
 type Topic {
     id: ID!
     subject: String
+    description: String
     created_by: User!
     updated_by: User!
     created_at: String!
@@ -25,6 +26,11 @@ type Message {
     created_at: String!
     updated_at: String!
 }
+
+type LogOutMessage {
+    message: String!
+}
+
 
 type Mutation {
     user_register(
@@ -71,4 +77,7 @@ type Query {
         token: String!
         id: ID!
     ): Topic
+    user_logout(
+        token: String
+    ): LogOutMessage
 }

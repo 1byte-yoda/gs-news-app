@@ -14,6 +14,13 @@ from ariadne import (
     ObjectType
 )
 from ariadne.constants import PLAYGROUND_HTML
+from app.api.users.graphql_mutations import (
+    resolve_user_register,
+    resolve_user_login
+)
+from app.api.users.graphql_queries import (
+    resolve_user_logout
+)
 from app.api.topics.graphql_queries import (
     resolve_topics,
     resolve_topic
@@ -37,6 +44,7 @@ type_defs = load_schema_from_path(graphql_file_dir)
 query = ObjectType("Query")
 query.set_field("topics", resolve_topics)
 query.set_field("topic", resolve_topic)
+query.set_field("user_logout", resolve_user_logout)
 
 # GQL Mutations
 mutation = ObjectType("Mutation")
@@ -44,6 +52,8 @@ mutation.set_field("topic_create", resolve_topic_create)
 mutation.set_field("topic_update", resolve_topic_update)
 mutation.set_field("topic_delete", resolve_topic_delete)
 mutation.set_field("message_create", resolve_message_create)
+mutation.set_field("user_register", resolve_user_register)
+mutation.set_field("user_login", resolve_user_login)
 
 
 schema = make_executable_schema(

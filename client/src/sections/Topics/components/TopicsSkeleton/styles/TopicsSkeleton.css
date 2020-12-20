@@ -1,0 +1,14 @@
+.topics-skeleton
+  .ant-skeleton-content
+  .ant-skeleton-title
+  + ant-skeleton-paragraph {
+    margin-top: 12px;
+}
+
+.topics-skeleton .ant-divider-horizontal {
+    margin: 12px 0;
+}
+
+.topics-skeleton .topics-skeleton__alert {
+  margin-bottom: 20px;
+}
