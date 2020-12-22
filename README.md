@@ -155,7 +155,7 @@ docker-compose run api python manage.py cov
 docker-compose up
 ```
 
-### 6. Open http://127.0.0.1 on your web browser (Might take some time for the React App to load.)
+### 6. Open your virtualbox's _IP Address_ on web browser, mine was _192.168.99.107_. (Might take some time for the React App to load.)
 
 #
 ## Quick snapshot of the Application's API endpoints.
