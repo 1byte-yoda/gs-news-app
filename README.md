@@ -142,7 +142,7 @@ docker-compose run api python manage.py test
 
 ### 3. Verify flake8 code compliance:
 ```
-docker-compose run flake8 app
+docker-compose run api flake8 app
 ```
 
 ### 4. Show test coverage summary:
