@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { useApolloClient } from "@apollo/react-hooks";
 import { Avatar, Button, Menu } from "antd";
 import { PlusSquareOutlined, LogoutOutlined, UserOutlined }  from "@ant-design/icons";
@@ -21,9 +21,11 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
     try {
       await client.query<userLogout, userLogoutVariables>({
         query: LOG_OUT,
-        variables: { token: viewer.user_login }
+        variables: { token: viewer.token }
       });
-      setViewer({ user_login: null });
+      setViewer({ token: null, id: null });
+      localStorage.removeItem("token");
+      localStorage.removeItem("id");
       displaySuccessNotification("You've successfully logged out!");
     } catch {
       displayErrorMessage(
@@ -31,14 +33,24 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
       );
     }
   };
+  
+  const menuItemCreateTopic = 
+    viewer.token ? (
+      <Item key="/create">
+        <Link to="/create">
+          <PlusSquareOutlined translate="" />
+          New Topic
+        </Link>
+      </Item>
+    ) : <Redirect to="/login"/>;
 
   const subMenuLogin =
-    viewer.user_login ? (
+    viewer.token ? (
       <SubMenu title={<Avatar src={"https://www.gravatar.com/avatar"} />}>
         <Item key="/user">
-          <Link to={`/user/${viewer.user_login}`}>
+          <Link to={`/user/${viewer.id}`}>
             <UserOutlined translate="" />
-              Profile
+            Profile
           </Link>
         </Item>
         <Item key="/logout">
@@ -57,14 +69,11 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
     );
 
   return (
-    <Menu mode="horizontal" selectable={false} className="menu">
-      <Item key="/create">
-        <Link to="/create">
-          <PlusSquareOutlined translate="" />
-          New Topic
-        </Link>
-      </Item>
-      {subMenuLogin}
-    </Menu>
+    <React.Fragment>
+      <Menu mode="horizontal" selectable={false} className="menu">
+        {menuItemCreateTopic}
+        {subMenuLogin}
+      </Menu>
+    </React.Fragment>
   );
 };

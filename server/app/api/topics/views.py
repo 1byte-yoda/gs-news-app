@@ -59,7 +59,7 @@ class SingleTopicViews(Resource):
         }
         try:
             topic = Topic.find(id=id)
-            if not topic:
+            if not topic and not topic.deleted_at:
                 return {
                     "message": "Topic does not exists."
                 }, 404

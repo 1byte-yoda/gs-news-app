@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { render } from 'react-dom';
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"; 
 import ApolloClient from "apollo-boost";
 import { ApolloProvider } from "react-apollo";
-import { Layout, Affix } from "antd";
+import { Layout, Spin, Affix } from "antd";
 import {
   AppHeader,
   Login,
@@ -12,8 +12,8 @@ import {
   Topic,
   Topics,
   NotFound,
-  User
 } from "./sections";
+import { AppHeaderSkeleton } from "./lib/components/AppHeaderSkeleton";
 import { Viewer } from "./lib/types"
 import * as serviceWorker from "./serviceWorker";
 import "./styles/index.css"
@@ -24,11 +24,29 @@ const apolloClient = new ApolloClient({
 });
 
 const initialViewer: Viewer = {
-  user_login: null
+  token: localStorage.getItem("token") || "",
+  id: localStorage.getItem("id")
 }
 
+
 const App = () => {
-  const [viewer, setViewer] = useState<Viewer>(initialViewer)
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [viewer, setViewer] = useState<Viewer>(initialViewer);
+
+  useEffect(() => {
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Layout className="app-skeleton">
+        <AppHeaderSkeleton />
+        <div className="app-skeleton__spin-section">
+          <Spin size="large" tip="Launching GS News"/>
+        </div>
+      </Layout>
+    );
+  };
   return (
     <Router>
       <Layout id="app">
@@ -38,7 +56,7 @@ const App = () => {
         <Switch>
           <Route exact path="/" component={Home}/>
           <Route exact path="/create" component={CreateTopic}/>
-          <Route exact path="/topic/:id" component={Topic}/>
+          <Route exact path="/topic/:id" render={() => <Topic viewer={viewer} />}/>
           <Route exact path="/topics" component={Topics}/>
           <Route
             exact
@@ -51,7 +69,6 @@ const App = () => {
               )
             }
           />
-          <Route exact path="/user/:id" component={User}/>
           <Route component={NotFound}/>
         </Switch>
       </Layout>

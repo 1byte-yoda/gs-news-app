@@ -82,8 +82,12 @@ class UserLogin(Resource):
                     )
                     response_object = {
                         "token": token,
+                        "id": user.id.__str__()
                     }
                     return response_object, 200
+                else:
+                    response_object["message"] = "Invalid Credentials."
+                    return response_object, 401
             else:
                 response_object["message"] = "User does not exist."
                 return response_object, 404
@@ -99,7 +103,7 @@ class UserLogOut(Resource):
     def get(self):
         response_object = {
             "message": "Provide a valid auth token."
-            }
+        }
         current_user = get_raw_jwt()
         if current_user.get("identity"):
             response_object["message"] = "Successfully logged out."

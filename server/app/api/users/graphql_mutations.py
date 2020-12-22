@@ -40,7 +40,5 @@ def resolve_user_login(obj, info, email, password):
     )
     data = payload.json()
     if payload.status_code == 200:
-        if data.get("token"):
-            data = data.get("token")
-            return data
+        return data
     raise Exception(data.get("message"))

@@ -17,5 +17,5 @@ export interface userLogout {
 }
 
 export interface userLogoutVariables {
-  token: string | null;
+  token?: string | null;
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Redirect } from "react-router";
 import { useMutation } from "@apollo/react-hooks"
 import {
@@ -30,24 +30,37 @@ interface Props {
 
 const { Content } = Layout;
 const { Text, Title } = Typography;
+const LOG_IN_DENIED = "Sorry! We weren't able to log you in. Please try again later!";
 
 export const Login = ({ setViewer }: Props) => {
+    const [errorMsg, setErrorMsg] = useState(LOG_IN_DENIED);;
     const [
         logIn,
         { data: logInData, loading: logInLoading, error: logInError }
     ] = useMutation<userLogin, userLoginVariables>(LOG_IN, {
         onCompleted: data => {
             if (data && data.user_login) {
-                setViewer(data)
+                setViewer( data.user_login )
+                localStorage.setItem("token", data.user_login.token || "");
+                localStorage.setItem("id", data.user_login.id || "");
                 displaySuccessNotification("You've successfully logged in!");
             }
+        },
+        onError: data => {
+            setErrorMsg(data.message.split(":")[1]);
         }
     });
+
+    if (logInData && logInData.user_login) {
+        const { id: userId } = logInData.user_login;
+        return <Redirect to={`/user/${userId}`} />;
+    }
+
     const handleLogin = async (login: userLoginVariables) => {
         try {
             logIn({ variables: login })
         } catch {
-            displayErrorMessage("Sorry! We weren't able to log you in. Please try again later!");
+            displayErrorMessage(errorMsg);
         }
     };
 
@@ -59,13 +72,9 @@ export const Login = ({ setViewer }: Props) => {
         );
     }
 
-    if (logInData && logInData.user_login) {
-        return <Redirect to="/topics" />;
-    }
-
     const logInErrorBannerElement = logInError ? (
         <ErrorBanner
-            description="Sorry! We weren't able to log you in. Please try again later!"
+            description={errorMsg}
         />
     ) : null;
 

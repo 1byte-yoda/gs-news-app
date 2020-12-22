@@ -18,10 +18,11 @@ def resolve_topic(obj, info, token, id):
     )
     if payload.json():
         payload = payload.json()
+        print(payload)
         if payload.get("data"):
             payload = payload.get("data")
-    if payload.get("message"):
-        payload = {"errors": [payload.get("message")]}
+        elif payload.get("message"):
+            raise Exception(payload["message"])
     return payload
 
 
