@@ -2,7 +2,7 @@ import React from "react";
 import { Link, Redirect } from "react-router-dom";
 import { useApolloClient } from "@apollo/react-hooks";
 import { Avatar, Button, Menu } from "antd";
-import { PlusSquareOutlined, LogoutOutlined, UserOutlined }  from "@ant-design/icons";
+import { FormOutlined, ReadOutlined, LogoutOutlined, UserOutlined }  from "@ant-design/icons";
 import { LOG_OUT } from "../../../../lib/graphql/queries";
 import { userLogout, userLogoutVariables } from "../../../../lib/graphql/queries/Logout/__generated__/userLogout";
 import { displaySuccessNotification, displayErrorMessage } from "../../../../lib/utils";
@@ -23,7 +23,7 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
         query: LOG_OUT,
         variables: { token: viewer.token }
       });
-      setViewer({ token: null, id: null });
+      setViewer({ token: null, id: null, avatar: null });
       localStorage.removeItem("token");
       localStorage.removeItem("id");
       displaySuccessNotification("You've successfully logged out!");
@@ -38,15 +38,25 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
     viewer.token ? (
       <Item key="/create">
         <Link to="/create">
-          <PlusSquareOutlined translate="" />
+          <FormOutlined translate="" />
           New Topic
         </Link>
       </Item>
     ) : <Redirect to="/login"/>;
 
+  const menuItemTopics = 
+  viewer.token ? (
+    <Item key="/topics">
+      <Link to="/topics">
+        <ReadOutlined translate="" />
+        All Topics
+      </Link>
+    </Item>
+  ) : <Redirect to="/login"/>;
+
   const subMenuLogin =
     viewer.token ? (
-      <SubMenu title={<Avatar src={"https://www.gravatar.com/avatar"} />}>
+      <SubMenu title={<Avatar src={viewer.avatar} />}>
         <Item key="/user">
           <Link to={`/user/${viewer.id}`}>
             <UserOutlined translate="" />
@@ -71,6 +81,7 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
   return (
     <React.Fragment>
       <Menu mode="horizontal" selectable={false} className="menu">
+        {menuItemTopics}
         {menuItemCreateTopic}
         {subMenuLogin}
       </Menu>

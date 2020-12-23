@@ -58,7 +58,7 @@ class UserLogin(Resource):
         email = post_data.get("email")
         password = post_data.get("password")
         try:
-            user = User.query.filter_by(email=email).first()
+            user = User.find(email=email)
             if user:
                 valid_password = bcrypt.check_password_hash(
                     user.password_hash,
@@ -82,7 +82,8 @@ class UserLogin(Resource):
                     )
                     response_object = {
                         "token": token,
-                        "id": user.id.__str__()
+                        "id": user.id.__str__(),
+                        "avatar": user.avatar
                     }
                     return response_object, 200
                 else:

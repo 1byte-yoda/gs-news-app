@@ -16,7 +16,7 @@ def resolve_message_create(obj, info, token, topic_id, message):
         topic_id=topic_id,
         _external=True
     )
-    payload = requests.post(
+    res = requests.post(
         url=url,
         json=data,
         headers={
@@ -24,8 +24,11 @@ def resolve_message_create(obj, info, token, topic_id, message):
             "Authorization": f"Bearer {token}"
         }
     )
-    if payload.json():
-        payload = payload.json()
+    if res.status_code != 200:
+        payload = res.json()
+        raise Exception(payload.get("message"))
+    if res.json():
+        payload = res.json()
         if payload.get("data"):
             payload = payload.get("data")
     return payload

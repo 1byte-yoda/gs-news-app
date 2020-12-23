@@ -74,19 +74,20 @@ class Message(db.Model):
     def find_all(cls, topic_id):
         """Find all messages from a given topic."""
         topic = Topic.find(id=uuid.UUID(topic_id))
-        if topic and not topic.deleted_at:
-            messages = (
-                Message.query.filter_by(topic_id=topic.id.__str__())
-                .order_by(cls.created_at.desc())
-                .paginate(
-                    page=current_app.config.get("PAGE_COUNT"),
-                    per_page=current_app.config.get("POSTS_PER_PAGE"),
-                    error_out=False
-                ).items
-            )
-            if messages:
-                return [message.json() for message in messages]
-            return messages
+        if topic:
+            if not topic.deleted_at:
+                messages = (
+                    Message.query.filter_by(topic_id=topic.id.__str__())
+                    .order_by(cls.created_at.desc())
+                    .paginate(
+                        page=current_app.config.get("PAGE_COUNT"),
+                        per_page=current_app.config.get("POSTS_PER_PAGE"),
+                        error_out=False
+                    ).items
+                )
+                if messages:
+                    return [message.json() for message in messages]
+                return messages
         else:
             raise TopicNotFound("Topic does not exists.")
 
@@ -94,7 +95,8 @@ class Message(db.Model):
         """Insert a new message in the database."""
         topic = Topic.find(id=topic_id)
         if topic:
-            topic.messages.append(self)
-            db.session.commit()
+            if not topic.deleted_at:
+                topic.messages.append(self)
+                db.session.commit()
         else:
             raise TopicNotFound("Topic does not exists.")

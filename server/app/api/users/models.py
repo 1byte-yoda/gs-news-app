@@ -2,6 +2,7 @@
 
 
 import datetime
+from hashlib import md5
 from typing import Dict
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
@@ -43,6 +44,7 @@ class User(db.Model):
             "id": str(self.id),
             "email": self.email,
             "name": self.name,
+            "avatar": self.avatar,
             "created_at": self.created_at,
             "updated_at": self.updated_at
         }
@@ -56,6 +58,12 @@ class User(db.Model):
     def password(self, password: str) -> None:
         """Generate a hash equivalent of a given password."""
         self.password_hash = bcrypt.generate_password_hash(password).decode()
+
+    @property
+    def avatar(self):
+        avatar_url_link = "https://www.gravatar.com/avatar/{}?d=identicon&s={}"
+        digest = md5(self.email.lower().encode("utf-8")).hexdigest()
+        return avatar_url_link.format(digest, 128)
 
     @classmethod
     def find(cls, **kwargs) -> "User":

@@ -2,7 +2,7 @@
 
 
 import datetime
-from typing import Dict
+from typing import Dict, List
 import uuid
 from flask import current_app
 from sqlalchemy.dialects.postgresql import UUID
@@ -84,18 +84,23 @@ class Topic(db.Model):
             return cls.query.filter_by(**kwargs).first()
 
     @classmethod
-    def find_all(cls):
+    def find_all(cls, page: int) -> List[Dict]:
         """Find all topics in the database that are not deleted yet."""
         topics = (
             cls.query.filter_by(deleted_at=None)
             .order_by(cls.subject.asc())
             .paginate(
-                page=current_app.config.get("PAGE_COUNT"),
+                page=page,
                 per_page=current_app.config.get("POSTS_PER_PAGE"),
                 error_out=False
-            ).items
+            )
         )
-        return [topic.json() for topic in topics]
+        pagination_data = (
+            topics.has_next,
+            topics.next_num,
+            [topic.json() for topic in topics.items]
+        )
+        return pagination_data
 
     def insert(self) -> None:
         """Insert into the database."""

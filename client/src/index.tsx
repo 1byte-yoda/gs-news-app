@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { render } from 'react-dom';
+import { Redirect } from "react-router-dom";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"; 
 import ApolloClient from "apollo-boost";
 import { ApolloProvider } from "react-apollo";
@@ -25,7 +26,8 @@ const apolloClient = new ApolloClient({
 
 const initialViewer: Viewer = {
   token: localStorage.getItem("token") || "",
-  id: localStorage.getItem("id")
+  id: localStorage.getItem("id"),
+  avatar: localStorage.getItem("avatar")
 }
 
 
@@ -54,10 +56,10 @@ const App = () => {
           <AppHeader viewer={viewer} setViewer={setViewer}/>
         </Affix>
         <Switch>
-          <Route exact path="/" component={Home}/>
+          <Route exact path="/" render={() => <Redirect to="/topics"/>}/>
           <Route exact path="/create" component={CreateTopic}/>
           <Route exact path="/topic/:id" render={() => <Topic viewer={viewer} />}/>
-          <Route exact path="/topics" component={Topics}/>
+          <Route exact path="/topics" render={() => <Topics viewer={viewer} page={1} />}/>
           <Route
             exact
             path="/login"

@@ -2,6 +2,7 @@ type User {
     id: ID!
     name: String!
     email: String!
+    avatar: String!
     created_at: String!
     updated_at: String!
 }
@@ -33,7 +34,14 @@ type LogOutMessage {
 
 type LogInResponse {
     token: String,
-    id: String
+    id: String,
+    avatar: String
+}
+
+type TopicResponse {
+    data: [Topic]
+    has_next: Boolean
+    next_num: Int
 }
 
 type Mutation {
@@ -76,7 +84,8 @@ type Mutation {
 type Query {
     topics(
         token: String!
-    ): [Topic]
+        page: Int!
+    ): TopicResponse
     topic(
         token: String!
         id: ID!

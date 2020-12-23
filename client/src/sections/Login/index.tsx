@@ -43,6 +43,7 @@ export const Login = ({ setViewer }: Props) => {
                 setViewer( data.user_login )
                 localStorage.setItem("token", data.user_login.token || "");
                 localStorage.setItem("id", data.user_login.id || "");
+                localStorage.setItem("avatar", data.user_login.avatar || "");
                 displaySuccessNotification("You've successfully logged in!");
             }
         },
@@ -53,6 +54,7 @@ export const Login = ({ setViewer }: Props) => {
 
     if (logInData && logInData.user_login) {
         const { id: userId } = logInData.user_login;
+        console.log(logInData)
         return <Redirect to={`/user/${userId}`} />;
     }
 

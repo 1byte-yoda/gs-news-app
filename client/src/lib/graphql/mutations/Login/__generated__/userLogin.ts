@@ -11,6 +11,7 @@ export interface userLogin_user_login {
   __typename: "LogInResponse";
   token: string | null;
   id: string | null;
+  avatar: string | null;
 }
 
 export interface userLogin {

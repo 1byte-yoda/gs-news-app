@@ -18,7 +18,6 @@ def resolve_topic(obj, info, token, id):
     )
     if payload.json():
         payload = payload.json()
-        print(payload)
         if payload.get("data"):
             payload = payload.get("data")
         elif payload.get("message"):
@@ -27,9 +26,10 @@ def resolve_topic(obj, info, token, id):
 
 
 @convert_kwargs_to_snake_case
-def resolve_topics(obj, info, token):
+def resolve_topics(obj, info, token, page):
     payload = requests.get(
         url=url_for("topics.multipletopicviews", _external=True),
+        json={"page": page},
         headers={
             "content-type": "application/json",
             "Authorization": f"Bearer {token}"
@@ -37,6 +37,6 @@ def resolve_topics(obj, info, token):
     )
     if payload.json():
         payload = payload.json()
-        if payload.get("data"):
-            payload = payload.get("data")
+        if payload.get("topics"):
+            payload = payload.get("topics")
     return payload

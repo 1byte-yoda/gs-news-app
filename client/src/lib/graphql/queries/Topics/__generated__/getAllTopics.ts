@@ -4,10 +4,10 @@
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL query operation: getTopic
+// GraphQL query operation: getAllTopics
 // ====================================================
 
-export interface getTopic_topic_created_by {
+export interface getAllTopics_topics_data_created_by {
   __typename: "User";
   id: string;
   name: string;
@@ -17,7 +17,7 @@ export interface getTopic_topic_created_by {
   updated_at: string;
 }
 
-export interface getTopic_topic_updated_by {
+export interface getAllTopics_topics_data_updated_by {
   __typename: "User";
   id: string;
   name: string;
@@ -27,7 +27,7 @@ export interface getTopic_topic_updated_by {
   updated_at: string;
 }
 
-export interface getTopic_topic_messages_created_by {
+export interface getAllTopics_topics_data_messages_created_by {
   __typename: "User";
   id: string;
   name: string;
@@ -37,7 +37,7 @@ export interface getTopic_topic_messages_created_by {
   updated_at: string;
 }
 
-export interface getTopic_topic_messages_updated_by {
+export interface getAllTopics_topics_data_messages_updated_by {
   __typename: "User";
   id: string;
   name: string;
@@ -47,34 +47,41 @@ export interface getTopic_topic_messages_updated_by {
   updated_at: string;
 }
 
-export interface getTopic_topic_messages {
+export interface getAllTopics_topics_data_messages {
   __typename: "Message";
   id: string;
   message: string;
-  created_by: getTopic_topic_messages_created_by;
-  updated_by: getTopic_topic_messages_updated_by;
+  created_by: getAllTopics_topics_data_messages_created_by;
+  updated_by: getAllTopics_topics_data_messages_updated_by;
   created_at: string;
   updated_at: string;
 }
 
-export interface getTopic_topic {
+export interface getAllTopics_topics_data {
   __typename: "Topic";
   id: string;
   subject: string | null;
   description: string | null;
-  created_by: getTopic_topic_created_by;
-  updated_by: getTopic_topic_updated_by;
+  created_by: getAllTopics_topics_data_created_by;
+  updated_by: getAllTopics_topics_data_updated_by;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
-  messages: (getTopic_topic_messages | null)[] | null;
+  messages: (getAllTopics_topics_data_messages | null)[] | null;
 }
 
-export interface getTopic {
-  topic: getTopic_topic | null;
+export interface getAllTopics_topics {
+  __typename: "TopicResponse";
+  data: (getAllTopics_topics_data | null)[] | null;
+  next_num: number | null;
+  has_next: boolean | null;
 }
 
-export interface getTopicVariables {
-  topic_id: string;
+export interface getAllTopics {
+  topics: getAllTopics_topics | null;
+}
+
+export interface getAllTopicsVariables {
   token: string;
+  page: number;
 }

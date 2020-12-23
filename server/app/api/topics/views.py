@@ -59,7 +59,7 @@ class SingleTopicViews(Resource):
         }
         try:
             topic = Topic.find(id=id)
-            if not topic and not topic.deleted_at:
+            if not topic or topic.deleted_at:
                 return {
                     "message": "Topic does not exists."
                 }, 404
@@ -150,13 +150,17 @@ class SingleTopicViews(Resource):
 class MultipleTopicViews(Resource):
     @jwt_required
     def get(self):
+        get_data = request.get_json()
         response_object = {
             "message": "Invalid payload."
         }
+        page = get_data.get("page")
         try:
-            topics = Topic.find_all()
+            (has_next, next_num, topics) = Topic.find_all(page=page)
             response_object = {
-                "data": topics
+                "data": topics,
+                "has_next": has_next,
+                "next_num": next_num
             }
             return response_object, 200
         except (ValueError, TypeError):
