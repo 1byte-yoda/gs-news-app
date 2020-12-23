@@ -88,7 +88,7 @@ docker-machine version 0.16.0, build 702c267f
 
 1. Clone the repo
 ```sh
-git clone https://github.com/PHmark/gs-news-app.git
+$ git clone https://github.com/PHmark/gs-news-app.git
 ```
 2. Create a docker machine inside a virtualbox
 ```sh
@@ -112,7 +112,7 @@ gs-news-app      *        virtualbox   Running   tcp://192.168.99.107:2376      
 ```
 4. Install using docker-compose
 ```sh
-docker-compose build
+$ docker-compose build
 ```
 
 #
@@ -124,35 +124,35 @@ $ docker-machine ip gs-news-app
 192.168.99.107
 
 # For Linux
-$ export REACT_APP_API_SERVICE_URL=192.168.99.107
+$ export REACT_APP_API_SERVICE_URL=http://192.168.99.107
 
 # For windows
-$ set REACT_APP_API_SERVICE_URL=192.168.99.107
+$ set REACT_APP_API_SERVICE_URL=http://192.168.99.107
 ```
 
 ### 1. Seed the database:
 ```
-docker-compose run api python manage.py seed_db
+$ docker-compose run api python manage.py seed_db
 ```
 
 ### 2. Running unit tests:
 ```
-docker-compose run api python manage.py test
+$ docker-compose run api python manage.py test
 ```
 
 ### 3. Verify flake8 code compliance:
 ```
-docker-compose run api flake8 app
+$ docker-compose run api flake8 app
 ```
 
 ### 4. Show test coverage summary:
 ```
-docker-compose run api python manage.py cov
+$ docker-compose run api python manage.py cov
 ```
 
 ### 5. Running the web application:
 ```
-docker-compose up
+$ docker-compose up
 ```
 
 ### 6. Open your virtualbox's _IP Address_ on web browser, mine was _192.168.99.107_. (Might take some time for the React App to load.)
