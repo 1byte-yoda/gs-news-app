@@ -14,7 +14,8 @@ class BaseConfig:
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
     REDIS_URL = "redis://redis:6379/0"
-    POSTS_PER_PAGE = 15
+    TOPICS_PER_PAGE = 15
+    COMMENTS_PER_PAGE = 15
     PAGE_COUNT = 1
 
 

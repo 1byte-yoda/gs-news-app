@@ -59,7 +59,7 @@ const App = () => {
           <Route exact path="/" render={() => <Redirect to="/topics"/>}/>
           <Route exact path="/create" component={CreateTopic}/>
           <Route exact path="/topic/:id" render={() => <Topic viewer={viewer} />}/>
-          <Route exact path="/topics" render={() => <Topics viewer={viewer} page={1} />}/>
+          <Route exact path="/topics" render={() => <Topics viewer={viewer} page={2} />}/>
           <Route
             exact
             path="/login"

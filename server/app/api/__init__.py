@@ -33,6 +33,10 @@ from app.api.topics.graphql_mutations import (
 from app.api.messages.graphql_mutations import (
     resolve_message_create
 )
+from app.api.messages.graphql_queries import (
+    resolve_messages
+)
+
 
 base_dir = os.path.abspath(
     os.path.dirname(os.path.dirname(__file__))
@@ -44,6 +48,7 @@ type_defs = load_schema_from_path(graphql_file_dir)
 query = ObjectType("Query")
 query.set_field("topics", resolve_topics)
 query.set_field("topic", resolve_topic)
+query.set_field("messages", resolve_messages)
 query.set_field("user_logout", resolve_user_logout)
 
 # GQL Mutations

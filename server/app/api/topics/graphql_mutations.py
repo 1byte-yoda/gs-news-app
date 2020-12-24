@@ -35,7 +35,7 @@ def resolve_topic_update(obj, info, token, id, subject, description):
         "description": description
     }
     url = url_for("topics.singletopicviews", id=id, _external=True)
-    payload = requests.post(
+    payload = requests.patch(
         url=url,
         json=data,
         headers={

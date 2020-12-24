@@ -1,7 +1,7 @@
 # server/app/api/messages/views.py
 
 
-from flask import request
+from flask import request, current_app
 from flask_restful import Resource
 from flask_jwt_extended import (
     jwt_required,
@@ -42,18 +42,26 @@ class SingleMessageViews(Resource):
 class MultipleMessageViews(Resource):
     @jwt_required
     def get(self, topic_id):
+        get_data = request.get_json()
         response_object = {
             "message": "Topic does not exists."
         }
+        default_page = current_app.config.get("PAGE_COUNT")
+        page = get_data.get("page") or default_page
         try:
-            messages = Message.find_all(topic_id=topic_id)
+            (has_next, next_page, messages) = Message.find_all(
+                page=page,
+                topic_id=topic_id
+            )
             response_object = {
-                "data": messages
+                "data": messages,
+                "has_next": has_next,
+                "next_num": next_page
             }
             return response_object, 200
         except TopicNotFound as e:
             response_object["message"] = e.args[0]
             return response_object, 404
-        except Exception:
+        except Exception as e:
             response_object["message"] = "Try again."
             return response_object, 500

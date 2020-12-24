@@ -5,35 +5,30 @@ import { Col, Layout, Row } from "antd";
 import { ErrorBanner, PageSkeleton } from "../../lib/components";
 import { TOPIC } from "../../lib/graphql/queries";
 import {
-    getTopic as TopicData,
-    getTopicVariables as TopicVariables,
+  getTopic as TopicData,
+  getTopicVariables as TopicVariables,
 } from "../../lib/graphql/queries/Topic/__generated__/getTopic";
-import {
-  TopicDetails,
-  TopicCommentList,
-  TopicCommentEditor
-} from "./components";
+import { TopicDetails, TopicCommentEditor } from "./components";
 import { Viewer } from "../../lib/types";
-
 
 interface MatchParams {
   id: string;
 }
 
 interface Props {
-    viewer: Viewer
+  viewer: Viewer;
 }
 
 const { Content } = Layout;
 
 export const Topic = ({ viewer }: Props) => {
-    const topicUrl: MatchParams = useParams();
-    const { loading, data, error } = useQuery<TopicData, TopicVariables>(TOPIC, {
+  const topicUrl: MatchParams = useParams();
+  const { loading, data, error } = useQuery<TopicData, TopicVariables>(TOPIC, {
     variables: {
       topic_id: topicUrl.id,
-      token:  viewer.token || ""
-    }
-    });
+      token: viewer.token || "",
+    },
+  });
 
   if (loading) {
     return (
@@ -57,22 +52,20 @@ export const Topic = ({ viewer }: Props) => {
 
   const topic = data ? data.topic : null;
 
-  const topicDetailsElement = (
-    topic ?
-      <>
-        <TopicDetails topic={topic} />
-        <div id={"comments"}>
-          <TopicCommentEditor
-            id={viewer.id}
-            avatar={viewer.avatar}
-            messages={messages}
-            viewer={ viewer }
-            topic_id={ topic.id }
-          />
-        </div>
-      </>
-    : null
-  );
+  const topicDetailsElement = topic ? (
+    <>
+      <TopicDetails topic={topic} />
+      <div id={"comments"}>
+        <TopicCommentEditor
+          avatar={viewer.avatar}
+          messages_count={data?.topic?.messages_count}
+          messages={messages}
+          viewer={viewer}
+          topic_id={topic.id}
+        />
+      </div>
+    </>
+  ) : null;
 
   return (
     <Content className="listings">

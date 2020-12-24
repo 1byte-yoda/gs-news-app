@@ -17,6 +17,7 @@ type Topic {
     updated_at: String!
     deleted_at: String
     messages: [Message]
+    messages_count: Int
 }
 
 type Message {
@@ -38,8 +39,14 @@ type LogInResponse {
     avatar: String
 }
 
-type TopicResponse {
+type TopicsResponse {
     data: [Topic]
+    has_next: Boolean
+    next_num: Int
+}
+
+type MessagesResponse {
+    data: [Message]
     has_next: Boolean
     next_num: Int
 }
@@ -85,11 +92,16 @@ type Query {
     topics(
         token: String!
         page: Int!
-    ): TopicResponse
+    ): TopicsResponse
     topic(
         token: String!
         id: ID!
     ): Topic
+    messages(
+        token: String!
+        page: Int!
+        topic_id: String!
+    ): MessagesResponse
     user_logout(
         token: String
     ): LogOutMessage

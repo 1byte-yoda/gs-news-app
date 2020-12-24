@@ -194,7 +194,7 @@ class TestTopicView(BaseTestCase):
             }
             topic_id = create_topic_data["id"]
             time.sleep(1.5)
-            update_topic = self.client.post(
+            update_topic = self.client.patch(
                 f"/topic/{topic_id}",
                 data=json.dumps(test_update_data),
                 content_type="application/json",

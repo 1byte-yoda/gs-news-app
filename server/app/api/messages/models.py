@@ -2,7 +2,7 @@
 
 
 import datetime
-from typing import Dict
+from typing import Dict, List
 import uuid
 from flask import current_app
 from sqlalchemy.dialects.postgresql import UUID
@@ -71,27 +71,40 @@ class Message(db.Model):
         }
 
     @classmethod
-    def find_all(cls, topic_id):
+    def find(cls, **kwargs) -> "Message":
+        """Find a database entry that matches given keyword argument."""
+        keys = list(kwargs.keys())
+        if (
+            len(keys) == 1
+            and keys[0] in cls.__table__.columns
+        ):
+            return cls.query.filter_by(**kwargs).first()
+
+    @classmethod
+    def find_all(cls, topic_id: str, page: int) -> List[Dict]:
         """Find all messages from a given topic."""
         topic = Topic.find(id=uuid.UUID(topic_id))
         if topic:
             if not topic.deleted_at:
                 messages = (
-                    Message.query.filter_by(topic_id=topic.id.__str__())
+                    cls.query.filter_by(topic_id=topic.id.__str__())
                     .order_by(cls.created_at.desc())
                     .paginate(
-                        page=current_app.config.get("PAGE_COUNT"),
-                        per_page=current_app.config.get("POSTS_PER_PAGE"),
+                        page=page,
+                        per_page=current_app.config.get("COMMENTS_PER_PAGE"),
                         error_out=False
-                    ).items
+                    )
                 )
-                if messages:
-                    return [message.json() for message in messages]
-                return messages
+                pagination_data = (
+                    messages.has_next,
+                    messages.next_num,
+                    [message.json() for message in messages.items]
+                )
+                return pagination_data
         else:
             raise TopicNotFound("Topic does not exists.")
 
-    def insert(self, topic_id):
+    def insert(self, topic_id: str) -> None:
         """Insert a new message in the database."""
         topic = Topic.find(id=topic_id)
         if topic:

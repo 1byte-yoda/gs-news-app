@@ -67,11 +67,12 @@ export interface getAllTopics_topics_data {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  messages_count: number | null;
   messages: (getAllTopics_topics_data_messages | null)[] | null;
 }
 
 export interface getAllTopics_topics {
-  __typename: "TopicResponse";
+  __typename: "TopicsResponse";
   data: (getAllTopics_topics_data | null)[] | null;
   next_num: number | null;
   has_next: boolean | null;

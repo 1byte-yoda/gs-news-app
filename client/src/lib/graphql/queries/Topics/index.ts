@@ -18,6 +18,7 @@ export const TOPICS = gql`
                 created_at
                 updated_at
                 deleted_at
+                messages_count
                 messages { 
                     id
                     message

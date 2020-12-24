@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@apollo/react-hooks";
 import { Layout, Space, List, Avatar, Typography } from "antd";
 import { MessageOutlined } from '@ant-design/icons';
-import { TopicCard } from "../../lib/components";
+import { ErrorBanner } from "../../lib/components";
+import { TopicsSkeleton } from "./components/TopicsSkeleton"
 import { TOPICS } from "../../lib/graphql/queries";
 import {
   getAllTopics as TopicsData,
@@ -11,7 +12,6 @@ import {
 } from "../../lib/graphql/queries/Topics/__generated__/getAllTopics";
 import { Viewer } from "../../lib/types";
 import { iconColor } from "../../lib/utils";
-import { idText } from "typescript";
 
 interface Props {
     viewer: Viewer,
@@ -27,33 +27,31 @@ const { Paragraph, Text, Title } = Typography;
 const PAGE_LIMIT = 8;
 
 export const Topics = ({ viewer, page }: Props & PageProp) => {
-  const { data, fetchMore } = useQuery<TopicsData, TopicsVariables>(TOPICS, {
+  const { data, error, loading, fetchMore } = useQuery<TopicsData, TopicsVariables>(TOPICS, {
     variables: {
       token: viewer.token || "",
       page: page
     }
   });
-  const listData = [];
-    for (let i = 0; i < 23; i++) {
-    listData.push({
-        href: 'https://ant.design',
-        title: `ant design part ${i}`,
-        avatar: 'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
-        description:
-        'Ant Design, a design language for background applications, is refined by Ant UED Team.',
-        content:
-        'We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently., to help people create their product prototypes beautifully and efficiently., to help people create their product prototypes beautifully and efficiently.',
-    });
-    }
-    const IconText = ({ icon, text }: any) => (
-        <Space>
-            {React.createElement(icon)}
-            {text}
-        </Space>
+  if (loading) {
+    return (
+      <Content className="listings">
+        <TopicsSkeleton />
+      </Content>
     );
+  }
+
+  if (error) {
+    return (
+      <Content className="listings">
+        <ErrorBanner description="We either couldn't find anything matching your search or have encountered an error. If you're searching for a unique location, try searching again with more common keywords." />
+        <TopicsSkeleton />
+      </Content>
+    );
+  }
 
     const topicsSectionAntd = 
-        data?.topics && data?.topics?.data?.length ? (
+        data?.topics?.data && data?.topics?.data?.length ? (
             <List
                 itemLayout="vertical"
                 size="large"
@@ -92,11 +90,10 @@ export const Topics = ({ viewer, page }: Props & PageProp) => {
                                     <MessageOutlined translate="" style={{ color: iconColor, fontSize: "14px" }} />
                                 </Link>
                                 <Link to={`/topic/${topic?.id}#comments`}>
-                                    <Text>{topic?.messages?.length} Comments</Text>
+                                    <Text>{topic?.messages_count} Comments</Text>
                                 </Link>
                             </Space>
                         </div>
-                        
                     </div>
                 </List.Item>
                 )}

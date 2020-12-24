@@ -5,6 +5,7 @@ import datetime
 from typing import Dict, List
 import uuid
 from flask import current_app
+from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import UUID
 from app.api.utils import ISO8601DateTime
 from app.api.users.models import User
@@ -44,7 +45,7 @@ class Topic(db.Model):
         ISO8601DateTime,
         nullable=True
     )
-    messages = db.relationship("Message")
+    messages = db.relationship("Message", lazy="dynamic")
     creator = db.relationship(
         User,
         primaryjoin=(created_by == User.id)
@@ -66,12 +67,27 @@ class Topic(db.Model):
             "subject": self.subject,
             "description": self.description,
             "created_by": self.creator.json(),
-            "updated_by": self.creator.json(),
+            "updated_by": self.updator.json(),
             "created_at": self.created_at,
             "updated_at": self.updated_at,
             "deleted_at": self.deleted_at,
-            "messages": [m.json() for m in self.messages]
+            "messages_count": len(self.messages.all()),
+            "messages": self.paginated_messages
         }
+
+    @property
+    def paginated_messages(self) -> List[Dict]:
+        """Paginated messages representation."""
+        from app.api.messages.models import Message
+        _ordered_msgs = self.messages.order_by(
+            Message.created_at.desc()
+        )
+        _paginated_msgs = _ordered_msgs.paginate(
+            page=1,
+            per_page=current_app.config.get("COMMENTS_PER_PAGE"),
+            error_out=False
+        ).items
+        return [message.json() for message in _paginated_msgs]
 
     @classmethod
     def find(cls, **kwargs) -> "Topic":
@@ -88,10 +104,10 @@ class Topic(db.Model):
         """Find all topics in the database that are not deleted yet."""
         topics = (
             cls.query.filter_by(deleted_at=None)
-            .order_by(cls.subject.asc())
+            .order_by(func.lower(cls.subject))
             .paginate(
                 page=page,
-                per_page=current_app.config.get("POSTS_PER_PAGE"),
+                per_page=current_app.config.get("TOPICS_PER_PAGE"),
                 error_out=False
             )
         )
@@ -107,7 +123,7 @@ class Topic(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def delete(self):
+    def delete(self) -> None:
         """Mark a topic as deleted in the database."""
         self.deleted_at = datetime.datetime.now()
         db.session.commit()

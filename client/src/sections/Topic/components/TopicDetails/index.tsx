@@ -26,7 +26,6 @@ import {
 import { getTopic_topic as TopicData } from "../../../../lib/graphql/queries/Topic/__generated__/getTopic";
 import { ErrorBanner, PageSkeleton } from "../../../../lib/components";
 import { iconColor } from "../../../../lib/utils";
-import { count } from "console";
 
 interface Props {
   topic: TopicData;

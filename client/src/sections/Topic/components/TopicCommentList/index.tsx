@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
+import { useQuery } from "@apollo/react-hooks";
 import {
   List,
   Typography,
@@ -11,31 +12,79 @@ import {
   Col,
   Tooltip,
   Space,
+  Spin,
 } from "antd";
 import { ClockCircleOutlined, MessageOutlined } from "@ant-design/icons";
-import { getTopic_topic_messages as messagesData } from "../../../../lib/graphql/queries/Topic/__generated__/getTopic";
+import { MESSAGES } from "../../../../lib/graphql/queries/Messages";
+import {
+  getMessages_messages_data,
+  getMessages,
+  getMessagesVariables as MessagesVariables,
+} from "../../../../lib/graphql/queries/Messages/__generated__/getMessages";
 import { iconColor } from "../../../../lib/utils";
 
 const { Paragraph, Text } = Typography;
 
-export const TopicCommentList = ({ messages }: any) => {
+interface MessagesData {
+  has_next: boolean | null;
+  next_num: number | null;
+  data: getMessages_messages_data[];
+}
+
+export const TopicCommentList = ({
+  topic_id,
+  messages_count,
+  messages,
+  setMessages,
+  token,
+}: any) => {
   const [expanded, setExapanded] = useState(false);
   const [counter, setCounter] = useState(0);
+  const [page, setPage] = useState(1);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const { error: commentsError, refetch: refetchComments, data } = useQuery<
+    getMessages,
+    MessagesVariables
+  >(MESSAGES, {
+    variables: {
+      topic_id: topic_id,
+      token: token || "",
+      page: page,
+    },
+    onCompleted: (data) => {
+      if (data.messages?.data && page > 1) {
+        setMessages(messages.concat(data.messages.data));
+        setCommentsLoading(false);
+        console.log(data)
+      }
+    },
+  });
+
   const commentCountIndicator = (totalComments: number) =>
     totalComments > 0 ? (
       <Text style={{ color: iconColor, cursor: "pointer" }}>
         <Space>
           <MessageOutlined translate="" />
-          <Text>{totalComments} Comments</Text>
+          <Text strong>{totalComments} Comments</Text>
         </Space>
       </Text>
     ) : (
-      <Text style={{ color: iconColor, cursor: "pointer" }}>Comment</Text>
+      <Text strong style={{ color: iconColor, cursor: "pointer" }}>
+        Comment
+      </Text>
     );
 
   const handleExandCommentClicked = () => {
     setCounter(!expanded ? counter + 0 : counter + 1);
     setExapanded(!expanded);
+  };
+
+  const handleLoadMoreComments = () => {
+    if (data?.messages?.has_next) {
+      setCommentsLoading(true);
+      setPage(data!.messages!.next_num!);
+      refetchComments();
+    }
   };
 
   const commentEllipsisOptions = {
@@ -79,7 +128,7 @@ export const TopicCommentList = ({ messages }: any) => {
     </Space>
   );
 
-  const commentItem = (props: messagesData) => {
+  const commentItem = (props: getMessages_messages_data) => {
     return (
       <Comment
         author={
@@ -104,25 +153,35 @@ export const TopicCommentList = ({ messages }: any) => {
       />
     );
   };
-  return messages.length > 0 ? (
+
+  const moreComments = data?.messages?.has_next ? (
+    <Row justify="end">
+      <Col>
+        <Button
+          type="link"
+          style={{ color: "black" }}
+          loading={commentsLoading}
+          onClick={handleLoadMoreComments}
+        >
+          <Text strong underline>
+            Load more comments
+          </Text>
+        </Button>
+      </Col>
+    </Row>
+  ) : null;
+  return messages_count > 0 ? (
     <>
       <List
         dataSource={messages}
-        header={commentCountIndicator(messages.length)}
+        header={commentCountIndicator(messages_count)}
         itemLayout="horizontal"
         renderItem={commentItem}
+        loadMore={moreComments}
+        loading={commentsLoading}
       />
-      <Row justify="end">
-        <Col>
-          <Button type="link" style={{ color: "black" }}>
-            <Text strong underline>
-              Load more comments
-            </Text>
-          </Button>
-        </Col>
-      </Row>
     </>
   ) : (
-    commentCountIndicator(messages.length)
+    commentCountIndicator(messages_count)
   );
 };

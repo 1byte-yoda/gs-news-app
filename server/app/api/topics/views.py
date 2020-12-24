@@ -1,7 +1,7 @@
 # server/app/api/topics/views.py
 
 
-from flask import request
+from flask import request, current_app
 from flask_restful import Resource
 from flask_jwt_extended import (
     jwt_required,
@@ -78,7 +78,7 @@ class SingleTopicViews(Resource):
             return response_object, 500
 
     @jwt_required
-    def post(self, id):
+    def patch(self, id):
         current_user = get_jwt_identity()
         topic = Topic.find(id=id)
         if not topic:
@@ -154,7 +154,8 @@ class MultipleTopicViews(Resource):
         response_object = {
             "message": "Invalid payload."
         }
-        page = get_data.get("page")
+        default_page = current_app.config.get("PAGE_COUNT")
+        page = get_data.get("page") or default_page
         try:
             (has_next, next_num, topics) = Topic.find_all(page=page)
             response_object = {

@@ -67,6 +67,7 @@ export interface getTopic_topic {
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
+  messages_count: number | null;
   messages: (getTopic_topic_messages | null)[] | null;
 }
 
