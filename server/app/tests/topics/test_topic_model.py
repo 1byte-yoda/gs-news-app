@@ -68,7 +68,7 @@ class TestUserModel(BaseTestCase):
             updated_by=user.id.__str__()
         )
         topic.insert()
-        self.assertIsInstance(topic.messages, list)
+        self.assertIsInstance(topic.messages.all(), list)
 
     def test_topic_user_relationship(self):
         user = User(

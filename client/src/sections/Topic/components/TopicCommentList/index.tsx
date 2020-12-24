@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import { useQuery } from "@apollo/react-hooks";
@@ -55,24 +55,31 @@ export const TopicCommentList = ({
       if (data.messages?.data && page > 1) {
         setMessages(messages.concat(data.messages.data));
         setCommentsLoading(false);
-        console.log(data)
+        console.log(data);
       }
     },
   });
 
-  const commentCountIndicator = (totalComments: number) =>
-    totalComments > 0 ? (
-      <Text style={{ color: iconColor, cursor: "pointer" }}>
-        <Space>
-          <MessageOutlined translate="" />
-          <Text strong>{totalComments} Comments</Text>
-        </Space>
-      </Text>
-    ) : (
-      <Text strong style={{ color: iconColor, cursor: "pointer" }}>
-        Comment
-      </Text>
-    );
+  const commentCountIndicator = (totalComments: number) => (
+    <div id={"comments"}>
+      {totalComments > 0 ? (
+        <Text>
+          <Space>
+            <MessageOutlined translate="" />
+            <Text>
+              {`${
+                totalComments > 1
+                  ? `${totalComments} Comments`
+                  : `${totalComments} Comment`
+              }`}{" "}
+            </Text>
+          </Space>
+        </Text>
+      ) : (
+        <Text>Comment</Text>
+      )}
+    </div>
+  );
 
   const handleExandCommentClicked = () => {
     setCounter(!expanded ? counter + 0 : counter + 1);
@@ -154,22 +161,31 @@ export const TopicCommentList = ({
     );
   };
 
-  const moreComments = data?.messages?.has_next ? (
-    <Row justify="end">
+  const moreComments = (
+    <Row style={{ marginTop: "5px" }} justify="space-between">
       <Col>
         <Button
-          type="link"
-          style={{ color: "black" }}
-          loading={commentsLoading}
-          onClick={handleLoadMoreComments}
-        >
-          <Text strong underline>
-            Load more comments
-          </Text>
-        </Button>
+          type="text"
+          style={{ cursor: "text", backgroundColor: "transparent" }}
+        >{`${messages.length} of ${messages_count}`}</Button>
       </Col>
+      {data?.messages?.has_next ? (
+        <Col>
+          <Button
+            type="link"
+            style={{ color: "black" }}
+            loading={commentsLoading}
+            onClick={handleLoadMoreComments}
+          >
+            <Text strong underline>
+              Load more comments
+            </Text>
+          </Button>
+        </Col>
+      ) : null}
     </Row>
-  ) : null;
+  );
+
   return messages_count > 0 ? (
     <>
       <List

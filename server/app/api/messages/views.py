@@ -62,6 +62,6 @@ class MultipleMessageViews(Resource):
         except TopicNotFound as e:
             response_object["message"] = e.args[0]
             return response_object, 404
-        except Exception as e:
+        except Exception:
             response_object["message"] = "Try again."
             return response_object, 500

@@ -34,25 +34,23 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
     }
   };
   
-  const menuItemCreateTopic = 
-    viewer.token ? (
+  const menuItemCreateTopic = (
       <Item key="/create">
         <Link to="/create">
           <FormOutlined translate="" />
           New Topic
         </Link>
       </Item>
-    ) : <Redirect to="/login"/>;
+    ) 
 
-  const menuItemTopics = 
-  viewer.token ? (
+  const menuAllTopics = (
     <Item key="/topics">
       <Link to="/topics">
         <ReadOutlined translate="" />
         All Topics
       </Link>
     </Item>
-  ) : <Redirect to="/login"/>;
+  );
 
   const subMenuLogin =
     viewer.token ? (
@@ -81,7 +79,7 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
   return (
     <React.Fragment>
       <Menu mode="horizontal" selectable={false} className="menu">
-        {menuItemTopics}
+        {menuAllTopics}
         {menuItemCreateTopic}
         {subMenuLogin}
       </Menu>

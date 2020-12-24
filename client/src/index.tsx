@@ -27,7 +27,7 @@ const apolloClient = new ApolloClient({
 const initialViewer: Viewer = {
   token: localStorage.getItem("token") || "",
   id: localStorage.getItem("id"),
-  avatar: localStorage.getItem("avatar")
+  avatar: localStorage.getItem("avatar"),
 }
 
 
@@ -57,7 +57,7 @@ const App = () => {
         </Affix>
         <Switch>
           <Route exact path="/" render={() => <Redirect to="/topics"/>}/>
-          <Route exact path="/create" component={CreateTopic}/>
+          <Route exact path="/create" render={() => <CreateTopic viewer={viewer} />}/>
           <Route exact path="/topic/:id" render={() => <Topic viewer={viewer} />}/>
           <Route exact path="/topics" render={() => <Topics viewer={viewer} page={2} />}/>
           <Route
@@ -66,6 +66,7 @@ const App = () => {
             render={
               props => (
                 <Login {...props} 
+                  viewer={viewer}
                   setViewer={setViewer}
                 />
               )

@@ -37,6 +37,6 @@ def resolve_topics(obj, info, token, page):
     )
     if payload.json():
         payload = payload.json()
-        if payload.get("topics"):
-            payload = payload.get("topics")
-    return payload
+        if payload.get("data"):
+            return payload
+    raise Exception(payload.get("message"))

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/react-hooks";
 import { Col, Layout, Row } from "antd";
@@ -23,6 +23,7 @@ const { Content } = Layout;
 
 export const Topic = ({ viewer }: Props) => {
   const topicUrl: MatchParams = useParams();
+  const [processingTopic, setProcessingTopic] = useState(false);
   const { loading, data, error } = useQuery<TopicData, TopicVariables>(TOPIC, {
     variables: {
       topic_id: topicUrl.id,
@@ -54,16 +55,15 @@ export const Topic = ({ viewer }: Props) => {
 
   const topicDetailsElement = topic ? (
     <>
-      <TopicDetails topic={topic} />
-      <div id={"comments"}>
-        <TopicCommentEditor
-          avatar={viewer.avatar}
-          messages_count={data?.topic?.messages_count}
-          messages={messages}
-          viewer={viewer}
-          topic_id={topic.id}
-        />
-      </div>
+      <TopicDetails viewer={viewer} topic={topic} setProcessingTopic={setProcessingTopic}/>
+      {!processingTopic ?
+      <TopicCommentEditor
+        avatar={viewer.avatar}
+        messages_count={data?.topic?.messages_count}
+        messages={messages}
+        viewer={viewer}
+        topic_id={topic.id}
+      />: null}
     </>
   ) : null;
 

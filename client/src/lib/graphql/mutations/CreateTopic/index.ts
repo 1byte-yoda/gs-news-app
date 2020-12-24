@@ -13,6 +13,7 @@ export const CREATE_TOPIC = gql`
       ) {
         id
         subject
+        description
         created_by { id name avatar email created_at updated_at }
         updated_by { id name avatar email created_at updated_at }
         created_at

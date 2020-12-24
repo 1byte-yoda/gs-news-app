@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, SetStateAction, Dispatch } from "react";
 import { useMutation } from "@apollo/react-hooks";
 import { Avatar, Comment, Form, Button, Input } from "antd";
 import { CREATE_MESSAGE } from "../../../../lib/graphql/mutations";
@@ -25,24 +25,24 @@ export const TopicCommentEditor = ({
   avatar,
   messages,
   viewer,
-  topic_id,
+  topic_id
 }: CommentEditorProps) => {
   const [commentValue, setCommentValue] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [comments, setComments] = useState(messages);
-  const [createMessage] = useMutation<commentData, commentDataVariables>(
-    CREATE_MESSAGE,
-    {
-      onCompleted: (data) => {
-        if (data && data.message_create) {
-          setComments([data.message_create, ...comments]);
-        }
-      },
-      onError: (data) => {
-        displayErrorMessage(data.message.split(":")[1]);
-      },
-    }
-  );
+  const [totalMessages, setTotalMessages] = useState(messages_count);
+  const [createMessage, { loading: createMessageLoading }] = useMutation<
+    commentData,
+    commentDataVariables
+  >(CREATE_MESSAGE, {
+    onCompleted: (data) => {
+      setComments([data.message_create, ...comments]);
+      setTotalMessages(totalMessages! + 1);
+    },
+    onError: (data) => {
+      displayErrorMessage(data.message.replace("GraphQL error:", ""));
+    },
+  });
 
   const handleCommentValueChange = (e: any) => {
     setCommentValue(e.target.value);
@@ -75,7 +75,8 @@ export const TopicCommentEditor = ({
       <Form.Item>
         <Button
           htmlType="submit"
-          loading={submitting}
+          href="#comments"
+          loading={submitting || createMessageLoading}
           onClick={handleSubmitComment}
           type="primary"
           style={{ float: "right" }}
@@ -92,7 +93,7 @@ export const TopicCommentEditor = ({
     <div>
       <TopicCommentList
         topic_id={topic_id}
-        messages_count={messages_count}
+        messages_count={totalMessages}
         messages={comments}
         setMessages={setComments}
         token={viewer.token}

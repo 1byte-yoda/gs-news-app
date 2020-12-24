@@ -59,6 +59,7 @@ export interface createTopic_topic_create {
   __typename: "Topic";
   id: string;
   subject: string | null;
+  description: string | null;
   created_by: createTopic_topic_create_created_by;
   updated_by: createTopic_topic_create_updated_by;
   created_at: string;

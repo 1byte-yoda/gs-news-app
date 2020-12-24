@@ -1,6 +1,12 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, Dispatch, SetStateAction } from "react";
+import { Link, Redirect } from "react-router-dom";
 import moment from "moment";
+import { useMutation } from "@apollo/react-hooks";
+import { DELETE_TOPIC } from "../../../../lib/graphql/mutations/DeleteTopic";
+import {
+  displaySuccessNotification,
+  displayErrorMessage,
+} from "../../../../lib/utils";
 import {
   Avatar,
   Layout,
@@ -24,17 +30,27 @@ import {
   ClockCircleOutlined,
 } from "@ant-design/icons";
 import { getTopic_topic as TopicData } from "../../../../lib/graphql/queries/Topic/__generated__/getTopic";
+import {
+  deleteTopic as deleteTopicData,
+  deleteTopicVariables,
+} from "../../../../lib/graphql/mutations/DeleteTopic/__generated__/deleteTopic";
 import { ErrorBanner, PageSkeleton } from "../../../../lib/components";
 import { iconColor } from "../../../../lib/utils";
+import { Viewer } from "../../../../lib/types";
 
 interface Props {
   topic: TopicData;
 }
 
-const { Paragraph, Title } = Typography;
+interface ViewerProps {
+  viewer: Viewer;
+  setProcessingTopic: Dispatch<SetStateAction<boolean>>;
+}
+
+const { Paragraph, Title, Text } = Typography;
 const { Content } = Layout;
 
-export const TopicDetails = ({ topic }: Props) => {
+export const TopicDetails = ({ viewer, topic, setProcessingTopic }: Props & ViewerProps) => {
   const [expanded, setExapanded] = useState(false);
   const [counter, setCounter] = useState(0);
   const {
@@ -47,6 +63,19 @@ export const TopicDetails = ({ topic }: Props) => {
     updated_at,
     deleted_at,
   } = topic;
+  const [deleteTopic, { loading, data }] = useMutation<
+    deleteTopicData,
+    deleteTopicVariables
+  >(DELETE_TOPIC, {
+    onCompleted: () => {
+      displaySuccessNotification("You've successfully deleted your topic!");
+    },
+    onError: () => {
+      displayErrorMessage(
+        "Sorry! We weren't able to delete your topic. Please try again later."
+      );
+    },
+  });
   const image = "https://picsum.photos/570";
 
   if (deleted_at) {
@@ -59,8 +88,28 @@ export const TopicDetails = ({ topic }: Props) => {
   }
 
   const handleDeleteTopic = () => {
-    console.log("Deleted!");
+    if (viewer.token && topic_id) {
+      deleteTopic({ variables: { token: viewer.token, topic_id: topic_id } });
+    }
   };
+
+  if (loading) {
+    setProcessingTopic(true);
+    return (
+      <Content className="host-content">
+        <div className="host__form-header">
+          <Title level={3} className="host__form-title">
+            Please wait!
+          </Title>
+          <Text type="secondary">We're deleting your topic now.</Text>
+        </div>
+      </Content>
+    );
+  }
+
+  if (data && data.topic_delete) {
+    return <Redirect to={`/topics`} />;
+  }
 
   const handleExandParagraphClicked = () => {
     setCounter(!expanded ? counter + 0 : counter + 1);
@@ -105,9 +154,7 @@ export const TopicDetails = ({ topic }: Props) => {
           </Paragraph>
         );
       }
-      return (
-        <Paragraph key={index}>{sentence}</Paragraph>
-      );
+      return <Paragraph key={index}>{sentence}</Paragraph>;
     });
 
   const UserModMenuOverLay = (
@@ -123,25 +170,26 @@ export const TopicDetails = ({ topic }: Props) => {
     </Menu>
   );
 
-  const UserModMenu = () => (
-    <Dropdown key="more" overlay={UserModMenuOverLay} trigger={["click"]}>
-      <Button
-        style={{
-          border: "none",
-          padding: 0,
-        }}
-      >
-        <EllipsisOutlined
-          translate=""
+  const UserModMenu =
+    created_by.id === viewer.id ? (
+      <Dropdown key="more" overlay={UserModMenuOverLay} trigger={["click"]}>
+        <Button
           style={{
-            fontSize: 25,
-            color: iconColor,
-            verticalAlign: "top",
+            border: "none",
+            padding: 0,
           }}
-        />
-      </Button>
-    </Dropdown>
-  );
+        >
+          <EllipsisOutlined
+            translate=""
+            style={{
+              fontSize: 25,
+              color: iconColor,
+              verticalAlign: "top",
+            }}
+          />
+        </Button>
+      </Dropdown>
+    ) : null;
 
   const updatedIndicator =
     updated_at !== created_at ? (
@@ -174,9 +222,7 @@ export const TopicDetails = ({ topic }: Props) => {
                 {updatedIndicator}
               </Space>
             </Col>
-            <Col>
-              <UserModMenu />
-            </Col>
+            <Col>{UserModMenu}</Col>
           </Row>
         </Paragraph>
         <Title level={3} className="listing-details__title">
