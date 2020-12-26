@@ -13,6 +13,7 @@ import {
   Topic,
   Topics,
   NotFound,
+  User
 } from "./sections";
 import { AppHeaderSkeleton } from "./lib/components/AppHeaderSkeleton";
 import { Viewer } from "./lib/types"
@@ -57,9 +58,9 @@ const App = () => {
         </Affix>
         <Switch>
           <Route exact path="/" render={() => <Redirect to="/topics"/>}/>
-          <Route exact path="/create" render={() => <CreateTopic viewer={viewer} />}/>
-          <Route exact path="/topic/:id" render={() => <Topic viewer={viewer} />}/>
-          <Route exact path="/topics" render={() => <Topics viewer={viewer} page={2} />}/>
+          <Route exact path="/create" render={() => <CreateTopic setViewer={setViewer} viewer={viewer} />}/>
+          <Route exact path="/topic/:id" render={() => <Topic setViewer={setViewer} viewer={viewer} />}/>
+          <Route exact path="/topics" render={() => <Topics setViewer={setViewer} viewer={viewer} page={2} />}/>
           <Route
             exact
             path="/login"
@@ -72,7 +73,9 @@ const App = () => {
               )
             }
           />
+          <Route path="/user/:id" component={User}/>
           <Route component={NotFound}/>
+          
         </Switch>
       </Layout>
     </Router>

@@ -9,16 +9,17 @@ from flask import url_for
 @convert_kwargs_to_snake_case
 def resolve_user_logout(obj, info, token):
     url = url_for("users.userlogout",  _external=True)
-    payload = requests.get(
+    response = requests.get(
         url=url,
         headers={
             "content-type": "application/json",
             "Authorization": f"Bearer {token}"
         }
     )
-    return payload.json()
-    if payload.status_code == 200:
-        payload = payload.json()
-        return payload
-    else:
-        raise Exception(payload.get("message"))
+    if response.json():
+        payload = response.json()
+        if response.status_code != 200:
+            info = response.status_code
+            info = int(info)
+            raise Exception(payload["message"])
+    return payload

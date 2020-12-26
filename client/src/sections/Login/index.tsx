@@ -27,6 +27,7 @@ const LOG_IN_DENIED =
 
 export const Login = ({ viewer, setViewer }: Props) => {
   const [errorMsg, setErrorMsg] = useState(LOG_IN_DENIED);
+  const [errorDescription, setErrorDescription] = useState(LOG_IN_DENIED);
   const [
     logIn,
     { data: logInData, loading: logInLoading, error: logInError },
@@ -41,7 +42,9 @@ export const Login = ({ viewer, setViewer }: Props) => {
       }
     },
     onError: (data) => {
-      setErrorMsg(data.message.split(":")[1]);
+      const gqlErrors = data.graphQLErrors[0];
+      const errorMessage = gqlErrors.message;
+      setErrorMsg(errorMessage);
     },
   });
 
@@ -51,11 +54,7 @@ export const Login = ({ viewer, setViewer }: Props) => {
   }
 
   const handleLogin = async (login: userLoginVariables) => {
-    try {
       logIn({ variables: login });
-    } catch {
-      displayErrorMessage(errorMsg);
-    }
   };
 
   if (logInLoading) {
@@ -67,7 +66,7 @@ export const Login = ({ viewer, setViewer }: Props) => {
   }
 
   const logInErrorBannerElement = logInError ? (
-    <ErrorBanner description={errorMsg} />
+    <ErrorBanner description={errorDescription} message={errorMsg} />
   ) : null;
 
   return (

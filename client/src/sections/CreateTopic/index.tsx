@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import { Form, Input, Button, Layout, Typography } from "antd";
 import { CREATE_TOPIC } from "../../lib/graphql/mutations/CreateTopic";
 import { Viewer } from "../../lib/types";
 import { useScrollToTop } from "../../lib/hooks";
+import { ErrorBanner, PageSkeleton } from "../../lib/components";
 import {
   displaySuccessNotification,
   displayErrorMessage,
@@ -17,15 +18,21 @@ import {
 
 interface Props {
   viewer: Viewer;
+  setViewer: (viewer: Viewer) => void;
 }
 
 const { Content } = Layout;
 const { Item } = Form;
 const { Text, Title } = Typography;
 
-export const CreateTopic = ({ viewer }: Props) => {
+const ERROR_DESCRIPTION = "We've encountered an error. Please try again soon!";
+const ERROR_MESSAGE = "Uh oh! Something went wrong :(";
+
+export const CreateTopic = ({ viewer, setViewer }: Props) => {
   const [form] = Form.useForm();
-  const [createTopic, { loading, data }] = useMutation<
+  const [errorMsg, setErrorMsg] = useState(ERROR_MESSAGE);
+  const [errorDescription, setErrorDescription] = useState(ERROR_DESCRIPTION);
+  const [createTopic, { loading, error, data }] = useMutation<
     CreateTopicData,
     CreateTopicVariables
   >(CREATE_TOPIC, {
@@ -33,9 +40,28 @@ export const CreateTopic = ({ viewer }: Props) => {
       displaySuccessNotification("You've successfully created your topic!");
     },
     onError: (data) => {
-      displayErrorMessage(
-          "Sorry! We weren't able to create your topic. Please try again later."
-      );
+      const gqlErrors = data.graphQLErrors[0];
+      if (gqlErrors) {
+        const exception = gqlErrors.extensions?.exception;
+        const statusCode = exception.context.info;
+        const errorMessage = gqlErrors.message;
+        if (statusCode === 401 && viewer.token) {
+          setErrorDescription("You will be logged out in 5 seconds...");
+          setErrorMsg(errorMessage);
+          setTimeout(() => {
+            setViewer({ token: null, id: null, avatar: null });
+            localStorage.clear();
+          }, 5000);
+        } else if (statusCode !== 401 && errorMessage && viewer.token) {
+          displayErrorMessage(
+            "Sorry! We weren't able to create your topic. Please try again later."
+          );
+        } else {
+          displayErrorMessage(
+            "Sorry! We weren't able to create your topic. Please try again later!"
+          );
+        }
+      }
     },
   });
 
@@ -52,6 +78,19 @@ export const CreateTopic = ({ viewer }: Props) => {
       });
     }
   };
+
+  if (error && viewer.token) {
+    return (
+      <Content className="listings">
+        <ErrorBanner message={errorMsg} description={errorDescription} />
+        <PageSkeleton />
+      </Content>
+    );
+  }
+
+  if (error && !viewer.token) {
+    return <Redirect to="/login" />;
+  }
 
   if (!viewer.id || !viewer.token) {
     return (

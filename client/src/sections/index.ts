@@ -5,3 +5,4 @@ export * from "./Topic";
 export * from "./Topics";
 export * from "./CreateTopic";
 export * from "./Login";
+export * from "./User";
