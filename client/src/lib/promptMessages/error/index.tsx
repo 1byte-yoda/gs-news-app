@@ -12,3 +12,4 @@ export const ERROR_LOG_IN_DENIED =
   "Sorry! We weren't able to log you in. Please try again later!";
 export const ERROR_CANT_CREATE_TOPIC =
   "Sorry! We weren't able to create your topic. Please try again later!";
+export const ERROR_PAGE_NOT_FOUND = "The page you're looking for can't be found";
