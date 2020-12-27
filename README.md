@@ -157,7 +157,7 @@ $ docker-compose run api flake8 app
 $ docker-compose run api python manage.py cov
 ```
 
-### 6. Open your virtualbox's _IP Address_ on web browser, on the example above the UP Address is _192.168.99.107_. (Might take some time for the React App to load.)
+### 6. Open your virtualbox's _IP Address_ on web browser, on the example above the IP Address was _192.168.99.107_. (Might take some time for the React App to load.)
 
 #
 ## Quick snapshot of the Application's API endpoints.
