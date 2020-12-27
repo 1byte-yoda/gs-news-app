@@ -8,7 +8,7 @@ import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from app.extensions import bcrypt
 from db import db
-from app.api.utils import ISO8601DateTime
+from db import ISO8601DateTime
 
 
 class User(db.Model):
@@ -33,6 +33,10 @@ class User(db.Model):
         default=datetime.datetime.now,
         onupdate=datetime.datetime.now
     )
+    topics = db.relationship("Topic", foreign_keys="Topic.created_by",
+                             uselist=True, lazy="dynamic")
+    messages = db.relationship(
+        "Message", foreign_keys="Message.created_by", uselist=True, lazy="dynamic")
 
     def __init__(self, name, email, password):
         self.name = name
@@ -46,7 +50,9 @@ class User(db.Model):
             "name": self.name,
             "avatar": self.avatar,
             "created_at": self.created_at,
-            "updated_at": self.updated_at
+            "updated_at": self.updated_at,
+            "total_topics": self.topics.count(),
+            "total_messages": self.messages.count()
         }
 
     @property

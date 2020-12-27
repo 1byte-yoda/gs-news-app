@@ -7,7 +7,7 @@ import uuid
 from flask import current_app
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import UUID
-from app.api.utils import ISO8601DateTime
+from db import ISO8601DateTime
 from app.api.rest.users.models import User
 from db import db
 

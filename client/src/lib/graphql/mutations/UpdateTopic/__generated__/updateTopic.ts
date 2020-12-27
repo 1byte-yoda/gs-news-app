@@ -64,6 +64,7 @@ export interface updateTopic_topic_update {
   created_at: string;
   updated_at: string;
   messages: (updateTopic_topic_update_messages | null)[] | null;
+  deleted_at: string;
 }
 
 export interface updateTopic {

@@ -20,6 +20,7 @@ export const UPDATE_TOPIC = gql`
             updated_by { id name email created_at updated_at }
             created_at
             updated_at
+            deleted_at
             messages { 
             id
             message

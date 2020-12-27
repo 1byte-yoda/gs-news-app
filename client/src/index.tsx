@@ -22,14 +22,13 @@ import * as serviceWorker from "./serviceWorker";
 import "./styles/index.css";
 
 const apolloClient = new ApolloClient({
-  // uri: `${process.env.REACT_APP_API_SERVICE_URL}:5001/graphql`,
-  uri: `http://192.168.99.109:5001/graphql`
+  uri: `${process.env.REACT_APP_API_SERVICE_URL}:5001/graphql`
 });
 
 const initialViewer: Viewer = {
-  token: localStorage.getItem("token") || "",
+  token: localStorage.getItem("token"),
   id: localStorage.getItem("id"),
-  avatar: localStorage.getItem("avatar"),
+  avatar: localStorage.getItem("avatar")
 };
 
 const App = () => {
@@ -99,7 +98,11 @@ const App = () => {
             path="/register"
             render={() => <Register viewer={viewer} />}
           />
-          <Route path="/user/:id" component={User} />
+          <Route
+            exact
+            path="/user/:id"
+            render={() => <User setViewer={setViewer} viewer={viewer} />}
+          />
           <Route component={NotFound} />
         </Switch>
       </Layout>

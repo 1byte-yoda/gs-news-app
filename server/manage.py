@@ -39,18 +39,25 @@ def seed_db():
     from app.api.rest.users.models import User
     from app.api.rest.topics.models import Topic
     from app.api.rest.messages.models import Message
-    user1 = User(
-        name="mark",
-        email="mark@gs-news.dev",
-        password="petmalu"
-    )
-    user2 = User(
-        name="juan",
-        email="sample_mail@gmail.com",
-        password="password123"
-    )
-    user1.insert()
-    user2.insert()
+
+    user1 = User.find(email="mark@gs-news.dev")
+    user2 = User.find(email="sample_mail@gmail.com")
+    if not user1:
+        user1 = User(
+            name="mark",
+            email="mark@gs-news.dev",
+            password="petmalu"
+        )
+        user1.insert()
+        user1.id = user1.id.__str__()
+    if not user2:
+        user2 = User(
+            name="juan",
+            email="sample_mail@gmail.com",
+            password="password123"
+        )
+        user2.insert()
+        user2.id = user2.id.__str__()
     seed_data = json.load(open("seed.json"))
     alphabet = list(string.ascii_lowercase)
     alphabet.reverse()
@@ -58,24 +65,24 @@ def seed_db():
         topic = Topic(
             subject=f"{i} This is a sample Subject",
             description=seed_data.get("lorem"),
-            created_by=user2.id.__str__(),
-            updated_by=user2.id.__str__()
+            created_by=user2.id,
+            updated_by=user2.id
         )
         db.session.add(topic)
-    for i in range(1, 30):
+    for i in range(1, 31):
         topic.messages.append(
             Message(
                 message=f"Sample Comment {i}",
-                created_by=user2.id.__str__(),
-                updated_by=user2.id.__str__()
+                created_by=user2.id,
+                updated_by=user2.id
             )
         )
-    for i in range(1, 30):
+    for i in range(1, 31):
         topic.messages.append(
             Message(
                 message=f"Sample Comment {i}",
-                created_by=user1.id.__str__(),
-                updated_by=user1.id.__str__()
+                created_by=user1.id,
+                updated_by=user1.id
             )
         )
     db.session.commit()

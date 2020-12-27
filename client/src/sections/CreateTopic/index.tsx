@@ -40,16 +40,16 @@ export const CreateTopic = ({ viewer, setViewer }: Props) => {
       displaySuccessNotification("You've successfully created your topic!");
     },
     onError: (data) => {
-      const gqlErrors = data.graphQLErrors[0];
+      const gqlErrors = data.graphQLErrors && data.graphQLErrors?.length ? data.graphQLErrors[0] : null;
       if (gqlErrors) {
         const exception = gqlErrors.extensions?.exception;
         const statusCode = exception.context.info;
         const errorMessage = gqlErrors.message;
-        if (statusCode === 401 && viewer.token) {
+        if (statusCode === "401" && viewer.token) {
           setErrorDescription(ERROR_FORCED_LOGOUT);
           setErrorMsg(errorMessage);
           setTimeout(() => {
-            setViewer({ token: null, id: null, avatar: null });
+            setViewer({ token: "", id: null, avatar: null });
             localStorage.clear();
           }, 5000);
         } else {

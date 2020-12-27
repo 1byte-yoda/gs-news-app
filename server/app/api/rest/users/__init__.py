@@ -5,7 +5,8 @@ from flask_restful import Api
 from app.api.rest.users.views import (
     UserRegister,
     UserLogin,
-    UserLogOut
+    UserLogOut,
+    SingleUserViews
 )
 
 
@@ -16,3 +17,4 @@ users_api = Api(users_blueprint)
 users_api.add_resource(UserRegister, "/user/register")
 users_api.add_resource(UserLogin, "/user/login")
 users_api.add_resource(UserLogOut, "/user/logout")
+users_api.add_resource(SingleUserViews, "/user/<string:id>")

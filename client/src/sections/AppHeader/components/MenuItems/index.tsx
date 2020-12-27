@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useLazyQuery } from "@apollo/react-hooks";
-import { Avatar, Button, Menu, Layout } from "antd";
+import { Avatar, Button, Menu } from "antd";
 import {
   FormOutlined,
   ReadOutlined,
@@ -12,7 +12,7 @@ import {
   userLogout,
   userLogoutVariables,
 } from "../../../../lib/graphql/queries/Logout/__generated__/userLogout";
-import { ErrorBanner, PageSkeleton } from "../../../../lib/components";
+import { ErrorBanner } from "../../../../lib/components";
 import {
   ERROR_MESSAGE,
   ERROR_CANT_LOGOUT,
@@ -30,7 +30,6 @@ interface Props {
 }
 
 const { Item, SubMenu } = Menu;
-const { Content } = Layout;
 
 export const MenuItems = ({ viewer, setViewer }: Props) => {
   const [errorMsg, setErrorMsg] = useState(ERROR_MESSAGE);
@@ -38,19 +37,19 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
   const [logOut, { error }] = useLazyQuery<userLogout, userLogoutVariables>(
     LOG_OUT,
     {
-      variables: { token: viewer.token },
+      variables: { token: viewer.token || "" },
       onCompleted: () => {
-        setViewer({ token: null, id: null, avatar: null });
+        setViewer({ token: "", id: null, avatar: null });
         localStorage.clear();
         displaySuccessNotification(SUCCESS_LOGOUT);
       },
       onError: (data) => {
-        const gqlErrors = data.graphQLErrors[0];
+        const gqlErrors = data.graphQLErrors && data.graphQLErrors?.length ? data.graphQLErrors[0] : null;
         if (gqlErrors) {
           const exception = gqlErrors.extensions?.exception;
           const statusCode = exception.context.info;
           const errorMessage = gqlErrors.message;
-          if (statusCode === 401) {
+          if (statusCode === "401") {
             setErrorDescription(ERROR_ACCESS_REVOKED);
             setErrorMsg(ERROR_FORCED_LOGOUT);
             setTimeout(() => {
@@ -65,17 +64,13 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
     }
   );
 
-  if (error && viewer.token) {
-    return (
-      <Content className="listings">
-        <ErrorBanner message={errorMsg} description={errorDescription} />
-        <PageSkeleton />
-      </Content>
-    );
-  }
+  const errorBanner =
+    error && viewer.token ? (
+      <ErrorBanner message={errorMsg} description={errorDescription} />
+    ) : null;
 
   const handleLogOut = async () => {
-    logOut({ variables: { token: viewer.token } });
+    logOut({ variables: { token: viewer.token || "" } });
   };
 
   const menuItemCreateTopic = (
@@ -121,6 +116,7 @@ export const MenuItems = ({ viewer, setViewer }: Props) => {
 
   return (
     <React.Fragment>
+      {errorBanner}
       <Menu mode="horizontal" selectable={false} className="menu">
         {menuAllTopics}
         {menuItemCreateTopic}

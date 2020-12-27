@@ -15,6 +15,24 @@ from app.extensions import bcrypt, redis_client
 from app.api.rest.users.models import User
 
 
+class SingleUserViews(Resource):
+    @jwt_required
+    def get(self, id):
+        try:
+            user = User.find(id=id)
+            if not user:
+                response_object["message"] = "User does not exist."
+                return response_object, 404
+            else:
+                response_object = user.json()
+                return response_object, 200
+        except Exception:
+            response_object["message"] = "Try again."
+            db.session.rollback()
+            db.session.flush()
+            return response_object, 500
+
+
 class UserRegister(Resource):
     def post(self):
         post_data = request.get_json()
@@ -45,6 +63,11 @@ class UserRegister(Resource):
             db.session.rollback()
             db.session.flush()
             return response_object, 400
+        except Exception:
+            response_object["message"] = "Try again."
+            db.session.rollback()
+            db.session.flush()
+            return response_object, 500
 
 
 class UserLogin(Resource):
@@ -72,7 +95,8 @@ class UserLogin(Resource):
                     )
                     token = create_access_token(
                         identity=user.id.__str__(),
-                        fresh=True
+                        fresh=True,
+                        user_claims=user.avatar
                     )
                     jti = get_jti(token)
                     redis_client.setex(
@@ -81,9 +105,7 @@ class UserLogin(Resource):
                         jti
                     )
                     response_object = {
-                        "token": token,
-                        "id": user.id.__str__(),
-                        "avatar": user.avatar
+                        "token": token
                     }
                     return response_object, 200
                 else:

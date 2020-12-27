@@ -6,7 +6,7 @@ from typing import Dict, List
 import uuid
 from flask import current_app
 from sqlalchemy.dialects.postgresql import UUID
-from app.api.utils import ISO8601DateTime
+from db import ISO8601DateTime
 from app.api.rest.topics.models import Topic
 from app.api.rest.users.models import User
 from app.api.rest.messages.exceptions import TopicNotFound

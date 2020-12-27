@@ -4,7 +4,7 @@
 from sqlalchemy.exc import IntegrityError
 from app.tests.base import BaseTestCase
 from app.api.rest.users.models import User
-from app.utils import (
+from app.tests.utils import (
     uuid_pattern_matched,
     iso8601_pattern_matched
 )

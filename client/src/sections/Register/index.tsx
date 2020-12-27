@@ -7,7 +7,7 @@ import {
   userRegisterVariables,
 } from "../../lib/graphql/mutations/Register/__generated__/userRegister";
 import {
-  ERROR_LOG_IN_DENIED,
+  ERROR_CANT_REGISTER,
   ERROR_MESSAGE,
 } from "../../lib/promptMessages/error";
 import { SUCCESS_REGISTER } from "../../lib/promptMessages/success";
@@ -29,7 +29,7 @@ interface userRegisterInput extends userRegisterVariables {
 }
 
 export const Register = ({ viewer }: Props) => {
-  const [errorMsg, setErrorMsg] = useState(ERROR_MESSAGE);
+  const [errorMsg, setErrorMsg] = useState(ERROR_CANT_REGISTER);
   const [register, { data, loading, error }] = useMutation<
     userRegister,
     userRegisterVariables
@@ -40,7 +40,7 @@ export const Register = ({ viewer }: Props) => {
       }
     },
     onError: (data) => {
-      const gqlErrors = data.graphQLErrors[0];
+      const gqlErrors = data.graphQLErrors && data.graphQLErrors?.length ? data.graphQLErrors[0] : null;
       if (gqlErrors) {
         const errorMessage = gqlErrors.message;
         setErrorMsg(errorMessage);
@@ -77,7 +77,7 @@ export const Register = ({ viewer }: Props) => {
   }
 
   const registerErrorBannerElement = error ? (
-    <ErrorBanner description={ERROR_LOG_IN_DENIED} message={errorMsg} />
+    <ErrorBanner description={errorMsg} message={ERROR_MESSAGE} />
   ) : null;
 
   return (

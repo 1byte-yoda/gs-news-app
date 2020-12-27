@@ -7,10 +7,12 @@ from app.api.graphql.users.mutations import (
     resolve_user_login
 )
 from app.api.graphql.users.queries import (
-    resolve_user_logout
+    resolve_user_logout,
+    resolve_user
 )
 
 # queries
+query.set_field("user", resolve_user)
 query.set_field("user_logout", resolve_user_logout)
 
 # mutations

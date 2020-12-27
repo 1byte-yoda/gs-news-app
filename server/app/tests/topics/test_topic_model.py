@@ -4,7 +4,7 @@
 from app.tests.base import BaseTestCase
 from app.api.rest.topics.models import Topic
 from app.api.rest.users.models import User
-from app.utils import uuid_pattern_matched, iso8601_pattern_matched
+from app.tests.utils import uuid_pattern_matched, iso8601_pattern_matched
 
 
 class TestUserModel(BaseTestCase):

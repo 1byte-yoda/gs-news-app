@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import jwtDecode, { JwtPayload } from "jwt-decode";
 import { Redirect } from "react-router";
 import { useMutation } from "@apollo/react-hooks";
 import { Form, Input, Button, Card, Layout, Spin, Typography } from "antd";
@@ -22,6 +23,11 @@ interface Props {
   viewer: Viewer;
 }
 
+interface JwtProps extends JwtPayload {
+  identity: string;
+  user_claims: string;
+}
+
 const { Content } = Layout;
 const { Text, Title } = Typography;
 
@@ -32,17 +38,21 @@ export const Login = ({ viewer, setViewer }: Props) => {
     userLoginVariables
   >(LOG_IN, {
     onCompleted: (data) => {
-      console.log(data)
-      if (data && data.user_login) {
-        setViewer(data.user_login);
-        localStorage.setItem("token", data.user_login.token || "");
-        localStorage.setItem("id", data.user_login.id || "");
-        localStorage.setItem("avatar", data.user_login.avatar || "");
+      if (data && data.user_login && data.user_login.token) {
+        const decoded = jwtDecode<JwtProps>(data.user_login.token);
+        setViewer({
+          token: data.user_login.token,
+          id: decoded.identity,
+          avatar: decoded.user_claims,
+        });
+        localStorage.setItem("token", data.user_login.token);
+        localStorage.setItem("id", decoded.identity);
+        localStorage.setItem("avatar", decoded.user_claims);
         displaySuccessNotification(SUCCESS_LOGIN);
       }
     },
     onError: (data) => {
-      const gqlErrors = data.graphQLErrors[0];
+      const gqlErrors = data.graphQLErrors && data.graphQLErrors?.length ? data.graphQLErrors[0] : null;
       if (gqlErrors) {
         const errorMessage = gqlErrors.message;
         setErrorMsg(errorMessage);
@@ -68,7 +78,7 @@ export const Login = ({ viewer, setViewer }: Props) => {
   }
 
   const logInErrorBannerElement = logInError ? (
-    <ErrorBanner description={ERROR_LOG_IN_DENIED} message={errorMsg} />
+    <ErrorBanner description={errorMsg} message={ERROR_LOG_IN_DENIED} />
   ) : null;
 
   return (

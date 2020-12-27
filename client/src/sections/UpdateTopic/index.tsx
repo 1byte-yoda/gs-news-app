@@ -12,7 +12,6 @@ import {
 import {
   getTopic as TopicData,
   getTopicVariables as TopicVariables,
-  getTopic_topic,
 } from "../../lib/graphql/queries/Topic/__generated__/getTopic";
 import {
   ERROR_MESSAGE,
@@ -42,29 +41,28 @@ const { Text, Title } = Typography;
 export const UpdateTopic = ({ viewer, setViewer }: Props) => {
   const [form] = Form.useForm();
   const [errorMsg, setErrorMsg] = useState(ERROR_MESSAGE);
-  const [topic, setTopic] = useState<getTopic_topic | null>();
   const [errorDescription, setErrorDescription] = useState(ERROR_TRY_SOON);
   const topicUrl: MatchParams = useParams();
   const topic_id = topicUrl.id;
-  const { error: getTopicError } = useQuery<TopicData, TopicVariables>(TOPIC, {
+  const { data: topicData, error: getTopicError } = useQuery<
+    TopicData,
+    TopicVariables
+  >(TOPIC, {
     variables: {
       topic_id: topicUrl.id,
       token: viewer.token || "",
     },
-    onCompleted: (data) => {
-      setTopic(data.topic);
-    },
     onError: (data) => {
-      const gqlErrors = data.graphQLErrors[0];
+      const gqlErrors = data.graphQLErrors && data.graphQLErrors?.length ? data.graphQLErrors[0] : null;
       if (gqlErrors) {
         const exception = gqlErrors.extensions?.exception;
         const statusCode = exception.context.info;
         const errorMessage = gqlErrors.message;
-        if (statusCode === 401 && viewer.token) {
+        if (statusCode === "401" && viewer.token) {
           setErrorDescription(ERROR_FORCED_LOGOUT);
           setErrorMsg(errorMessage);
           setTimeout(() => {
-            setViewer({ token: null, id: null, avatar: null });
+            setViewer({ token: "", id: null, avatar: null });
             localStorage.clear();
           }, 5000);
         } else if (statusCode !== 401 && errorMessage && viewer.token) {
@@ -82,16 +80,16 @@ export const UpdateTopic = ({ viewer, setViewer }: Props) => {
       displaySuccessNotification(SUCCESS_UPDATE_TOPIC);
     },
     onError: (data) => {
-      const gqlErrors = data.graphQLErrors[0];
+      const gqlErrors = data.graphQLErrors ? data.graphQLErrors[0] : null;
       if (gqlErrors) {
         const exception = gqlErrors.extensions?.exception;
         const statusCode = exception.context.info;
         const errorMessage = gqlErrors.message;
-        if (statusCode === 401 && viewer.token) {
+        if (statusCode === "401" && viewer.token) {
           setErrorDescription(ERROR_FORCED_LOGOUT);
           setErrorMsg(errorMessage);
           setTimeout(() => {
-            setViewer({ token: null, id: null, avatar: null });
+            setViewer({ token: "", id: null, avatar: null });
             localStorage.clear();
           }, 5000);
         } else {
@@ -154,9 +152,11 @@ export const UpdateTopic = ({ viewer, setViewer }: Props) => {
     );
   }
 
-  if (data && data.topic_update) {
-    return <Redirect to={`/topic/${topic_id}`} />;
+  if (data && !updateTopicError) {
+    return <Redirect from="/topic/${topic_id}/edit" to={`/topic/${topic_id}`} />;
   }
+
+  const topic = topicData && topicData.topic ? topicData.topic : null;
 
   return (
     <Content className="host-content">

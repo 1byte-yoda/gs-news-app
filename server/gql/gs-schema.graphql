@@ -1,108 +1,79 @@
 type User {
-    id: ID!
-    name: String!
-    email: String!
-    avatar: String!
-    created_at: String!
-    updated_at: String!
+  id: ID!
+  name: String!
+  email: String!
+  avatar: String!
+  total_topics: Int!
+  total_messages: Int!
+  created_at: String!
+  updated_at: String!
 }
 
 type Topic {
-    id: ID!
-    subject: String
-    description: String
-    created_by: User!
-    updated_by: User!
-    created_at: String!
-    updated_at: String!
-    deleted_at: String
-    messages: [Message]
-    messages_count: Int
+  id: ID!
+  subject: String
+  description: String
+  created_by: User!
+  updated_by: User!
+  created_at: String!
+  updated_at: String!
+  deleted_at: String
+  messages: [Message]
+  messages_count: Int
 }
 
 type Message {
-    id: ID!
-    message: String!
-    created_by: User!
-    updated_by: User!
-    created_at: String!
-    updated_at: String!
+  id: ID!
+  message: String!
+  created_by: User!
+  updated_by: User!
+  created_at: String!
+  updated_at: String!
 }
 
 type LogOutMessage {
-    message: String!
+  message: String!
 }
 
 type LogInResponse {
-    token: String,
-    id: String,
-    avatar: String
+  token: String
 }
 
 type TopicsResponse {
-    data: [Topic]
-    has_next: Boolean
-    next_num: Int
+  data: [Topic]
+  has_next: Boolean
+  next_num: Int
 }
 
 type MessagesResponse {
-    data: [Message]
-    has_next: Boolean
-    next_num: Int
+  data: [Message]
+  has_next: Boolean
+  next_num: Int
 }
 
 type Mutation {
-    user_register(
-        email: String!
-        name: String!
-        password: String!
-    ): User
+  user_register(email: String!, name: String!, password: String!): User
 
-    user_login(
-        email: String!
-        password: String!
-    ): LogInResponse
+  user_login(email: String!, password: String!): LogInResponse
 
-    topic_create(
-        token: String!
-        subject: String!
-        description: String!
-    ): Topic
+  topic_create(token: String!, subject: String!, description: String!): Topic
 
-    topic_update(
-        token: String!
-        id: ID!
-        subject: String
-        description: String
-    ): Topic
+  topic_update(
+    token: String!
+    id: ID!
+    subject: String
+    description: String
+  ): Topic
 
-    topic_delete(
-        token: String!
-        id: ID!
-    ): Boolean
+  topic_delete(token: String!, id: ID!): Boolean
 
-    message_create(
-        token: String!
-        topic_id: ID!
-        message: String!
-    ): Message
+  message_create(token: String!, topic_id: ID!, message: String!): Message
 }
 
 type Query {
-    topics(
-        token: String!
-        page: Int!
-    ): TopicsResponse
-    topic(
-        token: String!
-        id: ID!
-    ): Topic
-    messages(
-        token: String!
-        page: Int!
-        topic_id: String!
-    ): MessagesResponse
-    user_logout(
-        token: String
-    ): LogOutMessage
+  topics(token: String!, page: Int!): TopicsResponse
+  topic(token: String!, id: ID!): Topic
+  messages(token: String!, page: Int!, topic_id: String!): MessagesResponse
+  user(token: String!, id: ID!): User
+  user_logout(token: String!): LogOutMessage
 }

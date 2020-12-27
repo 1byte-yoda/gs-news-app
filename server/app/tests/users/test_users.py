@@ -7,7 +7,7 @@ from flask import current_app
 from flask_jwt_extended import get_jti
 from app.api.rest.users.models import User
 from app.tests.base import BaseTestCase
-from app.utils import (
+from app.tests.utils import (
     iso8601_pattern_matched,
     uuid_pattern_matched
 )

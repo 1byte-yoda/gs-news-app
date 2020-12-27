@@ -39,16 +39,16 @@ export const Topic = ({ viewer, setViewer }: Props) => {
       token: viewer.token || "",
     },
     onError: (data) => {
-      const gqlErrors = data.graphQLErrors[0];
+      const gqlErrors = data.graphQLErrors ? data.graphQLErrors[0] : null;
       if (gqlErrors) {
         const exception = gqlErrors.extensions?.exception;
         const statusCode = exception.context.info;
         const errorMessage = gqlErrors.message;
-        if (statusCode === 401 && viewer.token) {
+        if (statusCode === "401" && viewer.token) {
           setErrorDescription(ERROR_FORCED_LOGOUT);
           setErrorMsg(errorMessage);
           setTimeout(() => {
-            setViewer({ token: null, id: null, avatar: null });
+            setViewer({ token: "", id: null, avatar: null });
             localStorage.clear();
           }, 5000);
         } else if (statusCode !== 401 && errorMessage && viewer.token) {
@@ -97,13 +97,11 @@ export const Topic = ({ viewer, setViewer }: Props) => {
     );
   }
 
-  const topic = data ? data.topic : null;
-
-  const topicDetailsElement = topic ? (
+  const topicDetailsElement = data?.topic ? (
     <>
       <TopicDetails
         viewer={viewer}
-        topic={topic}
+        topic={data?.topic}
         setProcessingTopic={setProcessingTopic}
       />
       {!processingTopic ? (
@@ -112,7 +110,7 @@ export const Topic = ({ viewer, setViewer }: Props) => {
           messages_count={data?.topic?.messages_count}
           messages={messages}
           viewer={viewer}
-          topic_id={topic.id}
+          topic_id={data?.topic.id}
         />
       ) : null}
     </>

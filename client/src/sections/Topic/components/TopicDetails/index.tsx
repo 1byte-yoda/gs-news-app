@@ -157,10 +157,19 @@ export const TopicDetails = ({
             {expanded && (
               <Button
                 type="text"
-                style={{ backgroundColor: "transparent" }}
+                style={{
+                  backgroundColor: "transparent",
+                }}
                 onClick={handleExandParagraphClicked}
               >
-                Less
+                <Text
+                  style={{
+                    color: iconColor,
+                    fontSize: "15px",
+                  }}
+                >
+                  Less
+                </Text>
               </Button>
             )}
           </Paragraph>
@@ -183,7 +192,7 @@ export const TopicDetails = ({
   );
 
   const UserModMenu =
-    created_by.id === viewer.id ? (
+    created_by && created_by.id === viewer.id ? (
       <Dropdown key="more" overlay={UserModMenuOverLay} trigger={["click"]}>
         <Button
           style={{
@@ -206,13 +215,13 @@ export const TopicDetails = ({
   const updatedIndicator =
     updated_at !== created_at ? (
       <Tooltip
-        title={`${moment(updated_at).format("LLL")} by ${updated_by.name}`}
+        title={`Last updated ${moment(updated_at).format("LLL")} by ${updated_by.name}`}
       >
         <ClockCircleOutlined translate="" />
       </Tooltip>
     ) : null;
 
-  return (
+  return created_by ? (
     <div className="listing-details">
       <div
         style={{ backgroundImage: `url(${image})` }}
@@ -258,5 +267,5 @@ export const TopicDetails = ({
         </Paragraph>
       </div>
     </div>
-  );
+  ): null;
 };

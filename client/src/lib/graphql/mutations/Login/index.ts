@@ -10,8 +10,6 @@ export const LOG_IN = gql`
             password: $password
         ) {
             token
-            id
-            avatar
         }
     }
 `;

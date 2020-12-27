@@ -50,7 +50,7 @@ export const Topics = ({ viewer, setViewer }: Props) => {
       setTopics(topics.concat(data.topics!.data));
     },
     onError: (data) => {
-      const gqlErrors = data.graphQLErrors[0];
+      const gqlErrors = data.graphQLErrors && data.graphQLErrors?.length ? data.graphQLErrors[0] : null;
       if (gqlErrors) {
         const exception = gqlErrors.extensions?.exception;
         const statusCode = exception.context.info;
@@ -59,7 +59,7 @@ export const Topics = ({ viewer, setViewer }: Props) => {
           setErrorMsg(errorMessage);
           setErrorDescription(ERROR_FORCED_LOGOUT);
           setTimeout(() => {
-            setViewer({ token: null, id: null, avatar: null });
+            setViewer({ token: "", id: null, avatar: null });
             localStorage.clear();
           }, 5000);
         } else if (statusCode !== "401" && errorMessage && viewer.token) {
@@ -111,6 +111,7 @@ export const Topics = ({ viewer, setViewer }: Props) => {
       </Content>
     );
   }
+
   const topicsLoadingMore = (
     <Row justify="center">
       {loading && data?.topics?.has_next ? (
@@ -189,7 +190,7 @@ export const Topics = ({ viewer, setViewer }: Props) => {
       </Link>
       <InfiniteScroll
         initialLoad={false}
-        threshold={200}
+        threshold={50}
         pageStart={1}
         loadMore={handleFetchMore}
         hasMore={!loading && data?.topics?.has_next!}
