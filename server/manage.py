@@ -35,9 +35,10 @@ def recreate_db():
 def seed_db():
     """Seeds the database."""
     import string
-    from app.api.users.models import User
-    from app.api.topics.models import Topic
-    from app.api.messages.models import Message
+    import json
+    from app.api.rest.users.models import User
+    from app.api.rest.topics.models import Topic
+    from app.api.rest.messages.models import Message
     user1 = User(
         name="mark",
         email="mark@gs-news.dev",
@@ -45,25 +46,36 @@ def seed_db():
     )
     user2 = User(
         name="juan",
-        email="michael@abc.org",
-        password="samplepassword"
+        email="sample_mail@gmail.com",
+        password="password123"
     )
     user1.insert()
     user2.insert()
-    for i in list(string.ascii_lowercase):
+    seed_data = json.load(open("seed.json"))
+    alphabet = list(string.ascii_lowercase)
+    alphabet.reverse()
+    for i in alphabet:
         topic = Topic(
-            subject=f"{i} Subject",
-            description=f"{i} Description",
+            subject=f"{i} This is a sample Subject",
+            description=seed_data.get("lorem"),
             created_by=user2.id.__str__(),
             updated_by=user2.id.__str__()
         )
         db.session.add(topic)
-    for i in range(1, 11):
+    for i in range(1, 30):
         topic.messages.append(
             Message(
-                message=f"Hello world {i}",
+                message=f"Sample Comment {i}",
                 created_by=user2.id.__str__(),
                 updated_by=user2.id.__str__()
+            )
+        )
+    for i in range(1, 30):
+        topic.messages.append(
+            Message(
+                message=f"Sample Comment {i}",
+                created_by=user1.id.__str__(),
+                updated_by=user1.id.__str__()
             )
         )
     db.session.commit()

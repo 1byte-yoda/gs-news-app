@@ -6,20 +6,17 @@ from flask import Flask
 from flask_redis import FlaskRedis
 from fakeredis import FakeStrictRedis
 from flask_cors import CORS
+from ariadne.constants import PLAYGROUND_HTML
 from db import db
-from app.api.users.models import User
-from app.api.topics.models import Topic
-from app.api.messages.models import Message
-from app.api import (
-    ping_pong,
-    graphql_playground,
-    graphql_server
-)
+from app.api.rest.users.models import User
+from app.api.rest.topics.models import Topic
+from app.api.rest.messages.models import Message
 from app.extensions import (
     bcrypt,
     migrate,
     jwt,
-    redis_client
+    redis_client,
+    graphql_client
 )
 
 
@@ -40,6 +37,8 @@ def create_app(script_info=None):
     bcrypt.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    graphql_client.init_app(app)
+
     if app.config["TESTING"]:
         redis_store = FlaskRedis.from_custom_provider(FakeStrictRedis)
     else:
@@ -47,17 +46,18 @@ def create_app(script_info=None):
     redis_store.init_app(app)
 
     # register blueprints
-    from app.api.users import users_blueprint
+    from app.api.rest.users import users_blueprint
     app.register_blueprint(users_blueprint)
-    from app.api.topics import topics_blueprint
+    from app.api.rest.topics import topics_blueprint
     app.register_blueprint(topics_blueprint)
-    from app.api.messages import messages_blueprint
+    from app.api.rest.messages import messages_blueprint
     app.register_blueprint(messages_blueprint)
 
-    # add core application routes
-    app.add_url_rule("/ping", methods=["GET"], view_func=ping_pong)
-    app.add_url_rule("/graphql", methods=["GET"], view_func=graphql_playground)
-    app.add_url_rule("/graphql", methods=["POST"], view_func=graphql_server)
+    if app.debug:
+        @app.route("/graphql", methods=["GET"])
+        def gql_playground():
+            """User interface for writing graphql queries."""
+            return PLAYGROUND_HTML, 200
 
     # shell context for flask cli
     @app.shell_context_processor
@@ -70,5 +70,10 @@ def create_app(script_info=None):
             "Message": Message,
             "redis_store": redis_store
         }
+
+    @app.before_first_request
+    def create_tables():
+        """Create all tables in the database, if not existing."""
+        db.create_all()
 
     return app

@@ -3,7 +3,7 @@
 
 import json
 import time
-from app.api.users.models import User
+from app.api.rest.users.models import User
 from app.tests.base import BaseTestCase
 from app.utils import (
     iso8601_pattern_matched,
