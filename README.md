@@ -41,14 +41,16 @@
 ## About The Project
 
 ![GS News Login](images/login-screen.png)
+![GS News GQL](images/user-profile-screen.png)
 ![GS News Topic](images/topic-screen.png)
-![GS News GQL](images/graphql-screen.png)
 
 
 ### Built With
 
 * [Python 3](https://www.python.org/)
-* [React Typescript](https://reactjs.org/)
+* [Flask](https://flask.palletsprojects.com/en/1.1.x/)
+* [Typescript React](https://reactjs.org/)
+* [Ant Design](https://ant.design/)
 * [PostgreSQL](https://www.postgresql.org/)
 * [GraphQL](https://graphql.org/)
 
@@ -130,32 +132,32 @@ $ export REACT_APP_API_SERVICE_URL=http://192.168.99.107
 $ set REACT_APP_API_SERVICE_URL=http://192.168.99.107
 ```
 
-### 1. Seed the database:
+### 1. Running the web application:
+```
+$ docker-compose up -d
+```
+
+### 2. Seed the database:
 ```
 $ docker-compose run api python manage.py seed_db
 ```
 
-### 2. Running unit tests:
+### 3. Running unit tests:
 ```
 $ docker-compose run api python manage.py test
 ```
 
-### 3. Verify flake8 code compliance:
+### 4. Verify flake8 code compliance:
 ```
 $ docker-compose run api flake8 app
 ```
 
-### 4. Show test coverage summary:
+### 5. Show test coverage summary:
 ```
 $ docker-compose run api python manage.py cov
 ```
 
-### 5. Running the web application:
-```
-$ docker-compose up
-```
-
-### 6. Open your virtualbox's _IP Address_ on web browser, mine was _192.168.99.107_. (Might take some time for the React App to load.)
+### 6. Open your virtualbox's _IP Address_ on web browser, on the example above the UP Address is _192.168.99.107_. (Might take some time for the React App to load.)
 
 #
 ## Quick snapshot of the Application's API endpoints.
