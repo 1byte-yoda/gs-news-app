@@ -14,6 +14,8 @@ COV = coverage.coverage(
         'app/tests/*',
         'app/config.py',
         'app/__init__.py',
+        'app/extensions.py',
+        'app/api/rest/*/models.py'
     ]
 )
 COV.start()

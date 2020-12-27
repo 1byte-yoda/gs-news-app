@@ -28,6 +28,7 @@ class DevelopmentConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     """Testing configuration"""
     TESTING = True
+    DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_TEST_URL')
     BCRYPT_LOG_ROUNDS = int(os.environ.get("BCRYPT_LOG_ROUNDS_TEST"))
     JWT_ACCESS_TOKEN_EXPIRES = 3

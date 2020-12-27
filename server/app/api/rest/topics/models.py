@@ -102,6 +102,8 @@ class Topic(db.Model):
     @classmethod
     def find_all(cls, page: int) -> List[Dict]:
         """Find all topics in the database that are not deleted yet."""
+        if not page:
+            raise ValueError
         topics = (
             cls.query.filter_by(deleted_at=None)
             .order_by(func.lower(cls.subject))

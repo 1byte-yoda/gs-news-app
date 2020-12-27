@@ -18,19 +18,13 @@ from app.api.rest.users.models import User
 class SingleUserViews(Resource):
     @jwt_required
     def get(self, id):
-        try:
-            user = User.find(id=id)
-            if not user:
-                response_object["message"] = "User does not exist."
-                return response_object, 404
-            else:
-                response_object = user.json()
-                return response_object, 200
-        except Exception:
-            response_object["message"] = "Try again."
-            db.session.rollback()
-            db.session.flush()
-            return response_object, 500
+        user = User.find(id=id)
+        if not user:
+            response_object["message"] = "User does not exist."
+            return response_object, 404
+        else:
+            response_object = user.json()
+            return response_object, 200
 
 
 class UserRegister(Resource):
@@ -63,11 +57,6 @@ class UserRegister(Resource):
             db.session.rollback()
             db.session.flush()
             return response_object, 400
-        except Exception:
-            response_object["message"] = "Try again."
-            db.session.rollback()
-            db.session.flush()
-            return response_object, 500
 
 
 class UserLogin(Resource):

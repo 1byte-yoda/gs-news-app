@@ -2,6 +2,7 @@
 
 
 from flask import request, current_app
+import sqlalchemy
 from flask_restful import Resource
 from flask_jwt_extended import (
     jwt_required,
@@ -26,9 +27,9 @@ class CreateTopicView(Resource):
         post_keys = post_data.keys()
         has_invalid_keys = [k not in keys for k in post_keys]
         has_unknown_keys = len(post_keys) != len(keys)
-        if any(has_invalid_keys) or has_unknown_keys:
-            return response_object, 400
         try:
+            if any(has_invalid_keys) or has_unknown_keys:
+                raise ValueError
             current_user = get_jwt_identity()
             topic = Topic(
                 subject=subject,
@@ -40,22 +41,17 @@ class CreateTopicView(Resource):
             new_topic = Topic.find(id=topic.id)
             response_object = new_topic.json()
             return response_object, 201
-        except (ValueError, TypeError):
+        except ValueError:
             db.session.rollback()
             db.session.flush()
             return response_object, 400
-        except Exception:
-            db.session.rollback()
-            db.session.flush()
-            response_object["message"] = "Try again."
-            return response_object, 500
 
 
 class SingleTopicViews(Resource):
     @jwt_required
     def get(self, id):
         response_object = {
-            "message": "Invalid payload."
+            "message": "Invalid ID."
         }
         try:
             topic = Topic.find(id=id)
@@ -67,29 +63,13 @@ class SingleTopicViews(Resource):
                 "data": topic.json()
             }
             return response_object, 200
-        except (ValueError, TypeError):
+        except sqlalchemy.exc.DataError:
             db.session.rollback()
             db.session.flush()
             return response_object, 400
-        except Exception:
-            response_object["message"] = "Try again."
-            db.session.rollback()
-            db.session.flush()
-            return response_object, 500
 
     @jwt_required
     def patch(self, id):
-        current_user = get_jwt_identity()
-        topic = Topic.find(id=id)
-        if not topic:
-            return {
-                "message": "Topic does not exists."
-            }, 404
-        current_user = get_jwt_identity()
-        if str(current_user) != str(topic.created_by):
-            return {
-                "message": "You do not have permission to do that."
-            }, 401
         post_data = request.get_json()
         response_object = {
             "message": "Invalid payload."
@@ -99,52 +79,55 @@ class SingleTopicViews(Resource):
         keys = ["subject", "description"]
         post_keys = post_data.keys()
         has_unknown_keys = len(post_keys) != len(keys)
-        if has_unknown_keys:
-            return response_object, 400
+        has_invalid_keys = [k not in keys for k in post_keys]
         subject = post_data.get("subject")
         description = post_data.get("description")
         try:
-            if subject:
-                topic.subject = subject
-            if description:
-                topic.description = description
+            if any(has_invalid_keys) or has_unknown_keys:
+                raise ValueError
+            current_user = get_jwt_identity()
+            topic = Topic.find(id=id)
+            if not topic:
+                return {
+                    "message": "Topic does not exists."
+                }, 404
+            current_user = get_jwt_identity()
+            if str(current_user) != str(topic.created_by):
+                return {
+                    "message": "You do not have permission to do that."
+                }, 401
+            topic.subject = subject
+            topic.description = description
             db.session.commit()
             response_object = topic.json()
             return response_object, 200
-        except (ValueError, TypeError):
+        except (ValueError, sqlalchemy.exc.DataError):
             db.session.rollback()
             db.session.flush()
             return response_object, 400
-        except Exception:
-            db.session.rollback()
-            db.session.flush()
-            response_object["message"] = "Try again."
-            return response_object, 500
 
     @jwt_required
     def delete(self, id):
         response_object = {
             "message": "Invalid payload."
         }
-        current_user = get_jwt_identity()
-        topic = Topic.find(id=id)
-        if not topic or topic.deleted_at:
-            response_object["message"] = "Topic does not exists."
-            return response_object, 404
-        current_user = get_jwt_identity()
-        if str(current_user) != str(topic.created_by):
-            response_object["message"] = (
-                "You do not have permission to do that."
-            )
-            return response_object, 401
         try:
+            topic = Topic.find(id=id)
+            if not topic or topic.deleted_at:
+                response_object["message"] = "Topic does not exists."
+                return response_object, 404
+            current_user = get_jwt_identity()
+            if str(current_user) != str(topic.created_by):
+                response_object["message"] = (
+                    "You do not have permission to do that."
+                )
+                return response_object, 401
             topic.delete()
             return {"success": True}, 202
-        except Exception:
+        except sqlalchemy.exc.DataError:
             db.session.rollback()
             db.session.flush()
-            response_object["message"] = "Try again."
-            return response_object, 500
+            return response_object, 400
 
 
 class MultipleTopicViews(Resource):
@@ -154,6 +137,8 @@ class MultipleTopicViews(Resource):
         response_object = {
             "message": "Invalid payload."
         }
+        if not get_data:
+            return response_object, 400
         default_page = current_app.config.get("PAGE_COUNT")
         page = get_data.get("page") or default_page
         try:
@@ -164,12 +149,7 @@ class MultipleTopicViews(Resource):
                 "next_num": next_num
             }
             return response_object, 200
-        except (ValueError, TypeError):
+        except ValueError:
             db.session.rollback()
             db.session.flush()
             return response_object, 400
-        except Exception:
-            response_object["message"] = "Try again."
-            db.session.rollback()
-            db.session.flush()
-            return response_object, 500
