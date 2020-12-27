@@ -438,15 +438,6 @@ class TestTopicView(BaseTestCase):
             )
             login_data = json.loads(login.data.decode())
             token = login_data.get("token")
-            create_topic = self.client.post(
-                "/topic",
-                data=json.dumps({"subject": "subject", "description": "desc"}),
-                content_type="application/json",
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            create_topic_data = json.loads(
-                create_topic.data.decode()
-            )
             test_update_data = {
                 "subjectxsz": "Updated subject",
                 "description": "Updated description"
@@ -537,10 +528,6 @@ class TestTopicView(BaseTestCase):
             create_topic_data = json.loads(
                 create_topic.data.decode()
             )
-            test_update_data = {
-                "subject": "Updated subject",
-                "description": "Updated description"
-            }
             update_topic = self.client.patch(
                 f"/topic/{create_topic_data['id']}",
                 data=json.dumps({}),
@@ -767,15 +754,6 @@ class TestTopicView(BaseTestCase):
             )
             login_data = json.loads(login.data.decode())
             token = login_data.get("token")
-            create_topic = self.client.post(
-                "/topic",
-                data=json.dumps({"subject": "subject", "description": "desc"}),
-                content_type="application/json",
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            create_topic_data = json.loads(
-                create_topic.data.decode()
-            )
             delete_topic = self.client.delete(
                 f"/topic/{None}",
                 content_type="application/json",
@@ -806,7 +784,7 @@ class TestTopicView(BaseTestCase):
             token = login_data.get("token")
             current_app.config['PAGE_COUNT'] = None
             get_topics = self.client.get(
-                f"/topics",
+                "/topics",
                 data=json.dumps({"page": 1}),
                 content_type="application/json",
                 headers={"Authorization": f"Bearer {token}"}
@@ -836,7 +814,7 @@ class TestTopicView(BaseTestCase):
             token = login_data.get("token")
             current_app.config['PAGE_COUNT'] = None
             get_topics = self.client.get(
-                f"/topics",
+                "/topics",
                 data=json.dumps({"page": None}),
                 content_type="application/json",
                 headers={"Authorization": f"Bearer {token}"}
@@ -865,7 +843,7 @@ class TestTopicView(BaseTestCase):
             login_data = json.loads(login.data.decode())
             token = login_data.get("token")
             get_topics = self.client.get(
-                f"/topics",
+                "/topics",
                 data=json.dumps({}),
                 content_type="application/json",
                 headers={"Authorization": f"Bearer {token}"}

@@ -33,10 +33,18 @@ class User(db.Model):
         default=datetime.datetime.now,
         onupdate=datetime.datetime.now
     )
-    topics = db.relationship("Topic", foreign_keys="Topic.created_by",
-                             uselist=True, lazy="dynamic")
+    topics = db.relationship(
+        "Topic",
+        foreign_keys="Topic.created_by",
+        uselist=True,
+        lazy="dynamic"
+    )
     messages = db.relationship(
-        "Message", foreign_keys="Message.created_by", uselist=True, lazy="dynamic")
+        "Message",
+        foreign_keys="Message.created_by",
+        uselist=True,
+        lazy="dynamic"
+    )
 
     def __init__(self, name, email, password):
         self.name = name
