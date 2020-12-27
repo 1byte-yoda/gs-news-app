@@ -50,7 +50,11 @@ interface ViewerProps {
 const { Paragraph, Title, Text } = Typography;
 const { Content } = Layout;
 
-export const TopicDetails = ({ viewer, topic, setProcessingTopic }: Props & ViewerProps) => {
+export const TopicDetails = ({
+  viewer,
+  topic,
+  setProcessingTopic,
+}: Props & ViewerProps) => {
   const [expanded, setExapanded] = useState(false);
   const [counter, setCounter] = useState(0);
   const {
@@ -150,7 +154,15 @@ export const TopicDetails = ({ viewer, topic, setProcessingTopic }: Props & View
         return (
           <Paragraph key={index}>
             {sentence}{" "}
-            {expanded && <a onClick={handleExandParagraphClicked}>Less</a>}
+            {expanded && (
+              <Button
+                type="text"
+                style={{ backgroundColor: "transparent" }}
+                onClick={handleExandParagraphClicked}
+              >
+                Less
+              </Button>
+            )}
           </Paragraph>
         );
       }

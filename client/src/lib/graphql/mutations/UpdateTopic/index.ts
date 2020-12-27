@@ -1,6 +1,6 @@
 import { gql } from "apollo-boost";
 
-const UPDATE_TOPIC = gql`
+export const UPDATE_TOPIC = gql`
     mutation updateTopic(
         $token: String!
         $topic_id: ID!
@@ -15,6 +15,7 @@ const UPDATE_TOPIC = gql`
         ) {
             id
             subject
+            description
             created_by { id name avatar email created_at updated_at }
             updated_by { id name email created_at updated_at }
             created_at

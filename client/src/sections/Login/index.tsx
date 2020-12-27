@@ -7,12 +7,14 @@ import {
   userLogin,
   userLoginVariables,
 } from "../../lib/graphql/mutations/Login/__generated__/userLogin";
+import {
+  ERROR_LOG_IN_DENIED,
+  ERROR_MESSAGE,
+} from "../../lib/promptMessages/error";
+import { SUCCESS_LOGIN } from "../../lib/promptMessages/success";
 import { ErrorBanner } from "../../lib/components";
 import { LOG_IN } from "../../lib/graphql/mutations";
-import {
-  displaySuccessNotification,
-  displayErrorMessage,
-} from "../../lib/utils";
+import { displaySuccessNotification } from "../../lib/utils";
 import { Viewer } from "../../lib/types";
 
 interface Props {
@@ -22,39 +24,34 @@ interface Props {
 
 const { Content } = Layout;
 const { Text, Title } = Typography;
-const LOG_IN_DENIED =
-  "Sorry! We weren't able to log you in. Please try again later!";
 
 export const Login = ({ viewer, setViewer }: Props) => {
-  const [errorMsg, setErrorMsg] = useState(LOG_IN_DENIED);
-  const [errorDescription, setErrorDescription] = useState(LOG_IN_DENIED);
-  const [
-    logIn,
-    { data: logInData, loading: logInLoading, error: logInError },
-  ] = useMutation<userLogin, userLoginVariables>(LOG_IN, {
+  const [errorMsg, setErrorMsg] = useState(ERROR_MESSAGE);
+  const [logIn, { loading: logInLoading, error: logInError }] = useMutation<
+    userLogin,
+    userLoginVariables
+  >(LOG_IN, {
     onCompleted: (data) => {
+      console.log(data)
       if (data && data.user_login) {
         setViewer(data.user_login);
         localStorage.setItem("token", data.user_login.token || "");
         localStorage.setItem("id", data.user_login.id || "");
         localStorage.setItem("avatar", data.user_login.avatar || "");
-        displaySuccessNotification("You've successfully logged in!");
+        displaySuccessNotification(SUCCESS_LOGIN);
       }
     },
     onError: (data) => {
       const gqlErrors = data.graphQLErrors[0];
-      const errorMessage = gqlErrors.message;
-      setErrorMsg(errorMessage);
+      if (gqlErrors) {
+        const errorMessage = gqlErrors.message;
+        setErrorMsg(errorMessage);
+      }
     },
   });
 
-  if (viewer.id || viewer.token) {
-    const { id: userId } = viewer;
-    return <Redirect to={`/user/${userId}`} />;
-  }
-
   const handleLogin = async (login: userLoginVariables) => {
-      logIn({ variables: login });
+    logIn({ variables: login });
   };
 
   if (logInLoading) {
@@ -65,8 +62,13 @@ export const Login = ({ viewer, setViewer }: Props) => {
     );
   }
 
+  if (viewer.id || viewer.token) {
+    const { id: userId } = viewer;
+    return <Redirect to={`/user/${userId}`} />;
+  }
+
   const logInErrorBannerElement = logInError ? (
-    <ErrorBanner description={errorDescription} message={errorMsg} />
+    <ErrorBanner description={ERROR_LOG_IN_DENIED} message={errorMsg} />
   ) : null;
 
   return (
@@ -113,11 +115,6 @@ export const Login = ({ viewer, setViewer }: Props) => {
             />
           </Form.Item>
           <Form.Item>
-            <a className="log-in-form-forgot" href="example@example.com">
-              Forgot password
-            </a>
-          </Form.Item>
-          <Form.Item>
             <Button
               type="primary"
               htmlType="submit"
@@ -128,7 +125,7 @@ export const Login = ({ viewer, setViewer }: Props) => {
           </Form.Item>
           <Form.Item>
             <Text>
-              Or <a href="example@example.com">register now!</a>
+              Or <a href="/register">register now!</a>
             </Text>
           </Form.Item>
         </Form>

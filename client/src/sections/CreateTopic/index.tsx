@@ -2,19 +2,22 @@ import React, { useState } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { useMutation } from "@apollo/react-hooks";
 import { Form, Input, Button, Layout, Typography } from "antd";
-import { CREATE_TOPIC } from "../../lib/graphql/mutations/CreateTopic";
-import { Viewer } from "../../lib/types";
-import { useScrollToTop } from "../../lib/hooks";
-import { ErrorBanner, PageSkeleton } from "../../lib/components";
-import {
-  displaySuccessNotification,
-  displayErrorMessage,
-} from "../../lib/utils";
 import {
   createTopic as CreateTopicData,
   createTopicVariables as CreateTopicVariables,
   createTopic_topic_create as CreateTopicInput,
 } from "../../lib/graphql/mutations/CreateTopic/__generated__/createTopic";
+import { displaySuccessNotification } from "../../lib/utils";
+import {
+  ERROR_TRY_SOON,
+  ERROR_MESSAGE,
+  ERROR_FORCED_LOGOUT,
+  ERROR_CANT_CREATE_TOPIC,
+} from "../../lib/promptMessages/error";
+import { ErrorBanner, PageSkeleton } from "../../lib/components";
+import { CREATE_TOPIC } from "../../lib/graphql/mutations/CreateTopic";
+import { Viewer } from "../../lib/types";
+import { useScrollToTop } from "../../lib/hooks";
 
 interface Props {
   viewer: Viewer;
@@ -25,13 +28,10 @@ const { Content } = Layout;
 const { Item } = Form;
 const { Text, Title } = Typography;
 
-const ERROR_DESCRIPTION = "We've encountered an error. Please try again soon!";
-const ERROR_MESSAGE = "Uh oh! Something went wrong :(";
-
 export const CreateTopic = ({ viewer, setViewer }: Props) => {
   const [form] = Form.useForm();
   const [errorMsg, setErrorMsg] = useState(ERROR_MESSAGE);
-  const [errorDescription, setErrorDescription] = useState(ERROR_DESCRIPTION);
+  const [errorDescription, setErrorDescription] = useState(ERROR_TRY_SOON);
   const [createTopic, { loading, error, data }] = useMutation<
     CreateTopicData,
     CreateTopicVariables
@@ -46,20 +46,14 @@ export const CreateTopic = ({ viewer, setViewer }: Props) => {
         const statusCode = exception.context.info;
         const errorMessage = gqlErrors.message;
         if (statusCode === 401 && viewer.token) {
-          setErrorDescription("You will be logged out in 5 seconds...");
+          setErrorDescription(ERROR_FORCED_LOGOUT);
           setErrorMsg(errorMessage);
           setTimeout(() => {
             setViewer({ token: null, id: null, avatar: null });
             localStorage.clear();
           }, 5000);
-        } else if (statusCode !== 401 && errorMessage && viewer.token) {
-          displayErrorMessage(
-            "Sorry! We weren't able to create your topic. Please try again later."
-          );
         } else {
-          displayErrorMessage(
-            "Sorry! We weren't able to create your topic. Please try again later!"
-          );
+          setErrorDescription(ERROR_CANT_CREATE_TOPIC);
         }
       }
     },
@@ -86,10 +80,6 @@ export const CreateTopic = ({ viewer, setViewer }: Props) => {
         <PageSkeleton />
       </Content>
     );
-  }
-
-  if (error && !viewer.token) {
-    return <Redirect to="/login" />;
   }
 
   if (!viewer.id || !viewer.token) {

@@ -1,6 +1,6 @@
 import { gql } from "apollo-boost";
 
-const REGISTER = gql`
+export const REGISTER = gql`
     mutation userRegister(
         $email: String!
         $name: String!

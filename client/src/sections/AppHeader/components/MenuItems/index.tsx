@@ -1,22 +1,27 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useApolloClient, useLazyQuery } from "@apollo/react-hooks";
-import { Avatar, Button, Menu } from "antd";
+import { useLazyQuery } from "@apollo/react-hooks";
+import { Avatar, Button, Menu, Layout } from "antd";
 import {
   FormOutlined,
   ReadOutlined,
   LogoutOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import { LOG_OUT } from "../../../../lib/graphql/queries";
 import {
   userLogout,
   userLogoutVariables,
 } from "../../../../lib/graphql/queries/Logout/__generated__/userLogout";
+import { ErrorBanner, PageSkeleton } from "../../../../lib/components";
 import {
-  displaySuccessNotification,
-  displayErrorMessage,
-} from "../../../../lib/utils";
+  ERROR_MESSAGE,
+  ERROR_CANT_LOGOUT,
+  ERROR_ACCESS_REVOKED,
+  ERROR_FORCED_LOGOUT,
+} from "../../../../lib/promptMessages/error";
+import { SUCCESS_LOGOUT } from "../../../../lib/promptMessages/success";
+import { displaySuccessNotification } from "../../../../lib/utils";
+import { LOG_OUT } from "../../../../lib/graphql/queries";
 import { Viewer } from "../../../../lib/types";
 
 interface Props {
@@ -25,44 +30,49 @@ interface Props {
 }
 
 const { Item, SubMenu } = Menu;
+const { Content } = Layout;
 
 export const MenuItems = ({ viewer, setViewer }: Props) => {
-  const [logOut, {}] = useLazyQuery<userLogout, userLogoutVariables>(LOG_OUT, {
-    variables: { token: viewer.token },
-    onCompleted: (data) => {
-      setViewer({ token: null, id: null, avatar: null });
-      localStorage.clear();
-      displaySuccessNotification("You've successfully logged out!");
-    },
-    onError: (data) => {
-      const gqlErrors = data.graphQLErrors[0];
-      if (gqlErrors) {
-        const exception = gqlErrors.extensions?.exception;
-        const statusCode = exception.context.info;
-        const errorMessage = gqlErrors.message;
-        if (statusCode == 401) {
-          displayErrorMessage(
-            errorMessage +
-              " Either your access has expired or you've logged in your account on another device."
-          );
-          displayErrorMessage("You will be logged out in 5 seconds...");
-          setTimeout(() => {
-            setViewer({ token: null, id: null, avatar: null });
-            localStorage.clear();
-          }, 5000);
-        } else if (statusCode !== 401 && errorMessage) {
-          displayErrorMessage(
-            "Sorry! We weren't able to log you out. Please try again later!"
-          );
-          displayErrorMessage(errorMessage);
+  const [errorMsg, setErrorMsg] = useState(ERROR_MESSAGE);
+  const [errorDescription, setErrorDescription] = useState(ERROR_CANT_LOGOUT);
+  const [logOut, { error }] = useLazyQuery<userLogout, userLogoutVariables>(
+    LOG_OUT,
+    {
+      variables: { token: viewer.token },
+      onCompleted: () => {
+        setViewer({ token: null, id: null, avatar: null });
+        localStorage.clear();
+        displaySuccessNotification(SUCCESS_LOGOUT);
+      },
+      onError: (data) => {
+        const gqlErrors = data.graphQLErrors[0];
+        if (gqlErrors) {
+          const exception = gqlErrors.extensions?.exception;
+          const statusCode = exception.context.info;
+          const errorMessage = gqlErrors.message;
+          if (statusCode === 401) {
+            setErrorDescription(ERROR_ACCESS_REVOKED);
+            setErrorMsg(ERROR_FORCED_LOGOUT);
+            setTimeout(() => {
+              setViewer({ token: null, id: null, avatar: null });
+              localStorage.clear();
+            }, 5000);
+          } else {
+            setErrorDescription(errorMessage);
+          }
         }
-      } else {
-        displayErrorMessage(
-          "Sorry! We weren't able to log you out. Please try again later!"
-        );
-      }
-    },
-  });
+      },
+    }
+  );
+
+  if (error && viewer.token) {
+    return (
+      <Content className="listings">
+        <ErrorBanner message={errorMsg} description={errorDescription} />
+        <PageSkeleton />
+      </Content>
+    );
+  }
 
   const handleLogOut = async () => {
     logOut({ variables: { token: viewer.token } });

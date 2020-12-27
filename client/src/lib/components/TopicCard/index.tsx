@@ -11,7 +11,7 @@ interface Props {
   topic: TopicsData | null
 }
 
-const { Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 export const TopicCard = ({ topic }: Props) => {
   const image = "https://res.cloudinary.com/tiny-house/image/upload/v1560645376/mock/Los%20Angeles/los-angeles-listing-7_qapmfv.jpg";

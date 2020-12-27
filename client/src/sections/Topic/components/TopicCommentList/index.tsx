@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import { useQuery } from "@apollo/react-hooks";
@@ -12,7 +12,6 @@ import {
   Col,
   Tooltip,
   Space,
-  Spin,
 } from "antd";
 import { ClockCircleOutlined, MessageOutlined } from "@ant-design/icons";
 import { MESSAGES } from "../../../../lib/graphql/queries/Messages";
@@ -21,15 +20,8 @@ import {
   getMessages,
   getMessagesVariables as MessagesVariables,
 } from "../../../../lib/graphql/queries/Messages/__generated__/getMessages";
-import { iconColor } from "../../../../lib/utils";
 
 const { Paragraph, Text } = Typography;
-
-interface MessagesData {
-  has_next: boolean | null;
-  next_num: number | null;
-  data: getMessages_messages_data[];
-}
 
 export const TopicCommentList = ({
   topic_id,
@@ -38,11 +30,9 @@ export const TopicCommentList = ({
   setMessages,
   token,
 }: any) => {
-  const [expanded, setExapanded] = useState(false);
-  const [counter, setCounter] = useState(0);
   const [page, setPage] = useState(1);
   const [commentsLoading, setCommentsLoading] = useState(false);
-  const { error: commentsError, refetch: refetchComments, data } = useQuery<
+  const { refetch: refetchComments, data } = useQuery<
     getMessages,
     MessagesVariables
   >(MESSAGES, {
@@ -55,7 +45,6 @@ export const TopicCommentList = ({
       if (data.messages?.data && page > 1) {
         setMessages(messages.concat(data.messages.data));
         setCommentsLoading(false);
-        console.log(data);
       }
     },
   });
@@ -81,11 +70,6 @@ export const TopicCommentList = ({
     </div>
   );
 
-  const handleExandCommentClicked = () => {
-    setCounter(!expanded ? counter + 0 : counter + 1);
-    setExapanded(!expanded);
-  };
-
   const handleLoadMoreComments = () => {
     if (data?.messages?.has_next) {
       setCommentsLoading(true);
@@ -98,7 +82,6 @@ export const TopicCommentList = ({
     rows: 3,
     expandable: true,
     symbol: "more",
-    onExpand: handleExandCommentClicked,
   };
 
   const commentorAvatar = (props: any) => (
@@ -145,11 +128,10 @@ export const TopicCommentList = ({
         }
         avatar={commentorAvatar(props)}
         content={
-          <div key={counter}>
+          <div>
             <Paragraph ellipsis={commentEllipsisOptions}>
               {props?.message}
             </Paragraph>
-            {expanded && <a onClick={handleExandCommentClicked}>less</a>}
           </div>
         }
         datetime={commentDateTime(

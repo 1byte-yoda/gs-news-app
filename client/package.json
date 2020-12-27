@@ -9,6 +9,7 @@
     "@types/node": "12.6.9",
     "@types/react": "16.8.24",
     "@types/react-dom": "16.8.5",
+    "@types/react-infinite-scroller": "^1.2.1",
     "@types/react-router-dom": "^5.1.6",
     "@typescript-eslint/experimental-utils": "^4.11.0",
     "antd": "^4.9.4",
@@ -18,6 +19,7 @@
     "react": "^16.8.6",
     "react-apollo": "^3.1.5",
     "react-dom": "^16.8.6",
+    "react-infinite-scroller": "^1.2.4",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.0.1",
     "typescript": "^3.9.7"

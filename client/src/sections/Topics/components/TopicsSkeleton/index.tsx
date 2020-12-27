@@ -1,12 +1,10 @@
 import React from "react";
-import { Avatar, Space, Typography, List, Skeleton } from "antd";
-import { SmallDashOutlined } from "@ant-design/icons";
+import { List, Skeleton } from "antd";
 import topicLoadingCardCover from "../../assets/topic-loading-card-cover.jpg";
 
-const { Paragraph, Text } = Typography;
 
 export const TopicsSkeleton = () => {
-  const emptyData = [{}, {}, {}, {}, {}, {}, {}, {}];
+  const emptyData = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}];
 
   return (
     <div>

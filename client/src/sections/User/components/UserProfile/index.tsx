@@ -1,5 +1,5 @@
 import React, { Fragment } from "react";
-import { Avatar, Button, Card, Divider, Typography } from "antd";
+import { Avatar, Card, Divider, Typography } from "antd";
 // import { User as UserData } from "../../../../lib/graphql/queries/User/__generated__/User";
 
 // interface Props {

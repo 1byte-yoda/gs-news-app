@@ -58,6 +58,7 @@ export interface updateTopic_topic_update {
   __typename: "Topic";
   id: string;
   subject: string | null;
+  description: string | null;
   created_by: updateTopic_topic_update_created_by;
   updated_by: updateTopic_topic_update_updated_by;
   created_at: string;
