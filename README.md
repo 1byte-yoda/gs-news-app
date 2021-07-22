@@ -1,6 +1,6 @@
 # GS News Fullstack Application
 
-[![Build Status](https://travis-ci.com/PHMark/gs-news-app.svg?branch=main)](https://travis-ci.com/PHMark/gs-news-app)
+[![Build Status](https://travis-ci.com/PHMark/gs-news-app.svg?branch=main)](https://travis-ci.com/1byte-yoda/gs-news-app)
 
 
 <!-- PROJECT LOGO -->
