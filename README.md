@@ -10,7 +10,7 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a> -->
 
-  <h3 align="center">GS News Fullstack Application [*Under Development]</h3>
+  <h3 align="center">GS News Fullstack Application</h3>
 
   <p align="center">
     Stay updated with GS News!
